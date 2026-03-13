@@ -1,29 +1,34 @@
-# 📦 InvenTrack v1.0
+# ⚙️ InvenTrack: Smart Inventory Management System
 
-**InvenTrack** adalah sistem manajemen inventaris gudang modern yang dibangun dengan fokus pada kecepatan, keamanan, dan pengalaman pengguna yang "Josjis".
+**InvenTrack** adalah solusi manajemen inventaris modern yang dirancang untuk efisiensi operasional bengkel maupun gudang suku cadang. Aplikasi ini mengintegrasikan pemantauan stok secara *real-time* dengan sistem pelaporan yang komprehensif.
 
-![Warehouse Illustration](/public/images/hero-warehouse.jpg)
+## 🛠️ Arsitektur Teknologi
+Project ini dibangun dengan *cutting-edge stack* untuk menjamin skalabilitas dan performa:
+* **Core:** Laravel 12 & PHP 8.2
+* **Frontend:** Vue.js 3 & Vuetify (Material Design)
+* **Bridge:** Inertia.js (Membangun SPA tanpa kerumitan API tradisional)
+* **Data Viz:** Chart.js untuk analisis tren pergerakan barang
+* **Reporting:** DomPDF untuk dokumen laporan profesional
 
-## 🚀 Fitur Utama
-* **Real-time Dashboard**: Pantau total produk, stok kritis, dan aktivitas transaksi secara instan.
-* **Role-Based Access Control (RBAC)**: Keamanan berlapis antara **Admin** (Full Access) dan **Staff** (Inventory Only).
-* **Smart Inventory**: Manajemen kategori produk dengan sistem validasi yang ketat.
-* **Transaction Logs**: Riwayat keluar masuk barang yang tercatat secara otomatis.
-* **Modern UI/UX**: Menggunakan Vuetify 3 dengan desain isometrik yang bersih dan responsif.
+## 🚀 Fitur Unggulan
+* **Intelligent Dashboard:** Pantau total aset, volume produk, dan peringatan stok kritis dalam satu layar.
+* **Stock Analytics:** Visualisasi tren masuk dan keluar barang untuk membantu pengambilan keputusan restock.
+* **Automated History:** Setiap pergerakan barang tercatat secara detail, termasuk log user yang bertanggung jawab.
+* **Advanced Reporting:** Ekspor laporan periodik (Harian, Mingguan, Bulanan, Tahunan) serta filter custom periode tertentu.
+* **Role Security:** Proteksi akses fitur laporan khusus untuk level Administrator.
 
-## 🛠 Tech Stack
-Aplikasi ini dibangun menggunakan teknologi mutakhir:
-* **Backend**: [Laravel 12](https://laravel.com) (The PHP Framework for Web Artisans)
-* **Frontend**: [Vue 3](https://vuejs.org/) dengan [Inertia.js](https://inertiajs.com/) (Monolith feel, SPA power)
-* **UI Component**: [Vuetify 3](https://vuetifyjs.com/) (Material Design Component Framework)
-* **Database**: MySQL / SQLite
-
-## 🔧 Instalasi
-1. Clone repository ini
-2. Jalankan `composer install` & `npm install`
-3. Copy `.env.example` ke `.env` dan sesuaikan database
-4. Jalankan `php artisan migrate --seed`
-5. Jalankan `php artisan serve` & `npm run dev`
+## 📦 Instalasi
+1.  **Clone Repository**
+    ```bash
+    git clone [https://github.com/ramadhaniindras/InvenTrack.git](https://github.com/ramadhaniindras/InvenTrack.git)
+    ```
+2.  **Environment Setup**
+    * `composer install` & `npm install`
+    * Konfigurasi `.env` (Database & App Key)
+    * `php artisan migrate --seed`
+3.  **Deployment**
+    * `npm run dev` (Development)
+    * `php artisan serve`
 
 ---
-Built with 🔥 by [Ramadhani Indras](https://github.com/ramadhaniindras)
+Developed by [Ramadhani Indra](https://github.com/ramadhaniindras)
