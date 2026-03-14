@@ -3,10 +3,38 @@
 
     <AuthenticatedLayout>
         <v-container fluid class="pa-8 bg-grey-lighten-4">
-            <v-row class="mb-4">
-                <v-col cols="12">
+            <v-row class="mb-4 align-center">
+                <v-col cols="12" md="7">
                     <h1 class="text-h4 font-weight-bold text-grey-darken-3">Inventory Dashboard</h1>
                     <p class="text-subtitle-1 text-grey">Selamat datang kembali, Bro!</p>
+                </v-col>
+                
+                <v-col cols="12" md="3">
+                    <v-select
+                        v-model="filterForm.month"
+                        label="Bulan"
+                        :items="months"
+                        item-title="name"
+                        item-value="value"
+                        variant="outlined"
+                        density="compact"
+                        hide-details
+                        @update:model-value="applyFilter"
+                        class="bg-white"
+                    ></v-select>
+                </v-col>
+                
+                <v-col cols="12" md="2">
+                    <v-select
+                        v-model="filterForm.year"
+                        label="Tahun"
+                        :items="years"
+                        variant="outlined"
+                        density="compact"
+                        hide-details
+                        @update:model-value="applyFilter"
+                        class="bg-white"
+                    ></v-select>
                 </v-col>
             </v-row>
 
@@ -47,7 +75,7 @@
                     <v-card elevation="1" rounded="xl" class="pa-6 border-sm fill-height">
                         <div class="mb-4">
                             <h3 class="text-h6 font-weight-bold">Trend Pergerakan Barang</h3>
-                            <p class="text-caption text-grey">Data 7 hari terakhir</p>
+                            <p class="text-caption text-grey">Data aktivitas harian dalam bulan terpilih</p>
                         </div>
                         <div style="height: 350px">
                             <Bar :data="chartConfig" :options="chartOptions" />
@@ -61,7 +89,7 @@
                         <v-list class="px-0">
                             <div v-for="(item, index) in topProducts" :key="index" class="mb-4">
                                 <div class="d-flex justify-space-between mb-1">
-                                    <span class="font-weight-medium">{{ item.name }}</span>
+                                    <span class="font-weight-medium text-truncate" style="max-width: 150px;">{{ item.name }}</span>
                                     <span class="text-primary font-weight-bold">{{ item.total }} Pcs</span>
                                 </div>
                                 <v-progress-linear
@@ -71,6 +99,9 @@
                                     rounded
                                     striped
                                 ></v-progress-linear>
+                            </div>
+                            <div v-if="topProducts.length === 0" class="text-center text-grey py-4">
+                                Belum ada data keluar.
                             </div>
                         </v-list>
                     </v-card>
@@ -156,7 +187,7 @@ import {
     CategoryScale,
     LinearScale,
 } from "chart.js";
-import { computed } from "vue";
+import { computed, ref } from "vue"; // REF HARUS DI-IMPORT BRO!
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
 
@@ -164,6 +195,7 @@ const props = defineProps({
     stats: Object,
     chartData: Object,
     topProducts: Array,
+    filters: Object,
 });
 
 const calculatePercent = (val) => {
@@ -208,5 +240,33 @@ const chartOptions = {
         y: { beginAtZero: true, grid: { color: "#f0f0f0" } },
         x: { grid: { display: false } },
     },
+};
+
+// Setup state filter dari props backend
+const filterForm = ref({
+    month: props.filters.month,
+    year: props.filters.year,
+});
+
+const months = [
+    { name: "Januari", value: 1 }, { name: "Februari", value: 2 },
+    { name: "Maret", value: 3 }, { name: "April", value: 4 },
+    { name: "Mei", value: 5 }, { name: "Juni", value: 6 },
+    { name: "Juli", value: 7 }, { name: "Agustus", value: 8 },
+    { name: "September", value: 9 }, { name: "Oktober", value: 10 },
+    { name: "November", value: 11 }, { name: "Desember", value: 12 },
+];
+
+const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
+
+const applyFilter = () => {
+    router.get(
+        route("dashboard"),
+        {
+            month: filterForm.value.month,
+            year: filterForm.value.year,
+        },
+        { preserveState: true, preserveScroll: true }
+    );
 };
 </script>

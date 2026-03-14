@@ -20,9 +20,11 @@
                 ></v-list-item>
 
                 <v-list-item
+                    rounded="lg"
                     prepend-icon="mdi-package-variant"
                     title="Data Produk"
-                    @click="router.visit('/products')"
+                    @click="$inertia.visit(route('products.index'))"
+                    :active="route().current('products.*')"
                 >
                     <template
                         v-slot:append
@@ -180,3 +182,4 @@ watch(
     { deep: true, immediate: true },
 );
 </script>
+

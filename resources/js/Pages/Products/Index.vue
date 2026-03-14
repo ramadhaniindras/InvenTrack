@@ -11,6 +11,7 @@
                     <v-toolbar-title class="font-weight-bold"
                         >Inventory List</v-toolbar-title
                     >
+
                     <v-chip
                         size="x-small"
                         variant="tonal"
@@ -19,17 +20,22 @@
                     >
                         Total: <strong>{{ products.length }}</strong>
                     </v-chip>
+
                     <v-chip
-                        v-if="products.filter((p) => p.stock <= 10).length > 0"
+                        v-if="products.filter((p) => p.stock <= p.min_stock).length > 0"
                         size="x-small"
                         variant="tonal"
                         color="error"
+                        class="me-2"
                     >
                         Restock:
                         <strong>{{
-                            products.filter((p) => p.stock <= 10).length
+                            products.filter((p) => p.stock <= p.min_stock).length
                         }}</strong>
                     </v-chip>
+
+                    <v-spacer></v-spacer>
+
                     <v-text-field
                         v-model="search"
                         prepend-inner-icon="mdi-magnify"
@@ -39,32 +45,37 @@
                         hide-details
                         style="max-width: 300px"
                         rounded="lg"
+                        class="me-4"
                     ></v-text-field>
-                    <div class="d-flex ga-2 ms-4">
+
+                    <div class="d-flex ga-2">
                         <v-btn
                             color="primary"
                             variant="tonal"
                             prepend-icon="mdi-history"
                             rounded="lg"
                             @click="$inertia.visit('/history')"
-                            >History</v-btn
                         >
+                            History
+                        </v-btn>
                         <v-btn
                             color="primary"
                             variant="flat"
                             prepend-icon="mdi-plus"
                             rounded="lg"
                             @click="openDialog"
-                            >Tambah Barang</v-btn
                         >
+                            Tambah Barang
+                        </v-btn>
                         <v-btn
                             color="error"
                             variant="outlined"
                             prepend-icon="mdi-file-pdf-box"
                             rounded="lg"
                             @click="exportToPdf"
-                            >PDF</v-btn
                         >
+                            PDF
+                        </v-btn>
                     </div>
                 </v-toolbar>
 
@@ -89,11 +100,13 @@
                             {{ item.stock }}
                         </v-chip>
                     </template>
+
                     <template v-slot:item.price="{ item }">
                         <span class="font-weight-medium">{{
                             formatCurrency(item.price)
                         }}</span>
                     </template>
+
                     <template v-slot:item.actions="{ item }">
                         <div class="d-flex align-center justify-end ga-1">
                             <v-btn
@@ -112,7 +125,9 @@
                                 @click="openStockDialog(item, 'out')"
                                 title="Stok Keluar"
                             ></v-btn>
+
                             <v-divider vertical inset class="mx-2"></v-divider>
+
                             <template
                                 v-if="$page.props.auth.user.role === 'admin'"
                             >
@@ -130,6 +145,7 @@
                                     color="blue"
                                     size="small"
                                     @click="editItem(item)"
+                                    title="Edit"
                                 ></v-btn>
                                 <v-btn
                                     icon="mdi-delete"
@@ -137,12 +153,109 @@
                                     color="red"
                                     size="small"
                                     @click="deleteItem(item.id)"
+                                    title="Hapus"
                                 ></v-btn>
                             </template>
                         </div>
                     </template>
                 </v-data-table>
             </v-card>
+
+            <v-dialog v-model="dialog" max-width="600px" persistent>
+                <v-card rounded="xl">
+                    <v-card-title
+                        class="pa-4 bg-primary text-white d-flex align-center"
+                    >
+                        <v-icon
+                            :icon="isEditing ? 'mdi-pencil' : 'mdi-plus'"
+                            class="me-2"
+                        ></v-icon>
+                        <span class="text-h6">{{
+                            isEditing ? "Edit Produk" : "Tambah Produk Baru"
+                        }}</span>
+                    </v-card-title>
+                    <v-card-text class="pt-6">
+                        <v-row dense>
+                            <v-col cols="12" md="6">
+                                <v-text-field
+                                    v-model="form.sku"
+                                    label="SKU / Kode Barang"
+                                    variant="outlined"
+                                    density="comfortable"
+                                    :error-messages="form.errors.sku"
+                                ></v-text-field>
+                            </v-col>
+                            <v-col cols="12" md="6">
+                                <v-select
+                                    v-model="form.category_id"
+                                    label="Kategori"
+                                    :items="categories"
+                                    item-title="name"
+                                    item-value="id"
+                                    variant="outlined"
+                                    density="comfortable"
+                                    :error-messages="form.errors.category_id"
+                                ></v-select>
+                            </v-col>
+                            <v-col cols="12">
+                                <v-text-field
+                                    v-model="form.name"
+                                    label="Nama Barang"
+                                    variant="outlined"
+                                    density="comfortable"
+                                    :error-messages="form.errors.name"
+                                ></v-text-field>
+                            </v-col>
+                            <v-col cols="4">
+                                <v-text-field
+                                    v-model.number="form.stock"
+                                    type="number"
+                                    label="Stok"
+                                    variant="outlined"
+                                    density="comfortable"
+                                ></v-text-field>
+                            </v-col>
+                            <v-col cols="4">
+                                <v-text-field
+                                    v-model.number="form.min_stock"
+                                    type="number"
+                                    label="Limit Stok"
+                                    variant="outlined"
+                                    density="comfortable"
+                                ></v-text-field>
+                            </v-col>
+                            <v-col cols="4">
+                                <v-text-field
+                                    v-model.number="form.price"
+                                    type="number"
+                                    label="Harga"
+                                    variant="outlined"
+                                    density="comfortable"
+                                    prefix="Rp"
+                                ></v-text-field>
+                            </v-col>
+                        </v-row>
+                    </v-card-text>
+                    <v-divider></v-divider>
+                    <v-card-actions class="pa-4">
+                        <v-spacer></v-spacer>
+                        <v-btn
+                            variant="text"
+                            @click="closeDialog"
+                            :disabled="form.processing"
+                            >Batal</v-btn
+                        >
+                        <v-btn
+                            color="primary"
+                            variant="flat"
+                            rounded="lg"
+                            @click="submit"
+                            :loading="form.processing"
+                            >Simpan</v-btn
+                        >
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
 
             <v-dialog v-model="stockDialog" max-width="450px" persistent>
                 <v-card rounded="xl">
@@ -171,18 +284,7 @@
                             label="Jumlah"
                             variant="outlined"
                             min="1"
-                            :max="
-                                stockForm.type === 'out'
-                                    ? currentProductStock
-                                    : undefined
-                            "
-                            :rules="[
-                                (v) => !!v || 'Jumlah harus diisi',
-                                (v) =>
-                                    stockForm.type === 'in' ||
-                                    v <= currentProductStock ||
-                                    'Stok tidak mencukupi!',
-                            ]"
+                            :rules="[(v) => !!v || 'Jumlah wajib diisi']"
                         ></v-text-field>
                         <v-text-field
                             v-model="stockForm.reference"
@@ -212,10 +314,8 @@
                             variant="flat"
                             @click="submitStock"
                             :loading="stockForm.processing"
-                            :disabled="stockForm.processing"
+                            >Konfirmasi</v-btn
                         >
-                            Konfirmasi
-                        </v-btn>
                     </v-card-actions>
                 </v-card>
             </v-dialog>
@@ -261,7 +361,6 @@
                             variant="flat"
                             @click="submitAdjust"
                             :loading="adjustForm.processing"
-                            :disabled="adjustForm.processing"
                             >Simpan Perubahan</v-btn
                         >
                     </v-card-actions>
@@ -281,6 +380,7 @@ const props = defineProps({
     categories: Array,
     filters: Object,
 });
+
 const dialog = ref(false);
 const stockDialog = ref(false);
 const adjustDialog = ref(false);
@@ -292,6 +392,7 @@ const currentProductStock = computed(() => {
     const product = props.products.find((p) => p.id === stockForm.product_id);
     return product ? product.stock : 0;
 });
+
 const headers = [
     { title: "SKU", key: "sku", align: "start", sortable: true },
     { title: "Nama Barang", key: "name", align: "start" },
@@ -310,6 +411,7 @@ const form = useForm({
     min_stock: 5,
     price: 0,
 });
+
 const stockForm = useForm({
     product_id: null,
     product_name: "",
@@ -318,6 +420,7 @@ const stockForm = useForm({
     reference: "",
     notes: "",
 });
+
 const adjustForm = useForm({ product_id: null, actual_stock: 0, reason: "" });
 
 const formatCurrency = (val) =>
@@ -333,12 +436,16 @@ const openDialog = () => {
     form.clearErrors();
     dialog.value = true;
 };
+
 const closeDialog = () => {
     dialog.value = false;
 };
+
 const editItem = (item) => {
     isEditing.value = true;
     Object.assign(form, item);
+    // Sync category_id if nested
+    if (item.category_id) form.category_id = item.category_id;
     dialog.value = true;
 };
 
@@ -373,7 +480,6 @@ const submitStock = () => {
         alert("Stok tidak mencukupi, Bro!");
         return;
     }
-
     stockForm.post(route("stock-movements.store"), {
         onSuccess: () => {
             stockDialog.value = false;
