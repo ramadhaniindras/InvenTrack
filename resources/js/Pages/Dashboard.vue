@@ -2,21 +2,17 @@
     <Head title="Inventory Dashboard" />
 
     <AuthenticatedLayout>
-        <v-container fluid class="pa-8">
-            <v-row mb-6>
+        <v-container fluid class="pa-8 bg-grey-lighten-4">
+            <v-row class="mb-4">
                 <v-col cols="12">
-                    <h1 class="text-h4 font-weight-bold text-grey-darken-3">
-                        Inventory Dashboard
-                    </h1>
-                    <p class="text-subtitle-1 text-grey">
-                        Selamat datang kembali, Bro!
-                    </p>
+                    <h1 class="text-h4 font-weight-bold text-grey-darken-3">Inventory Dashboard</h1>
+                    <p class="text-subtitle-1 text-grey">Selamat datang kembali, Bro!</p>
                 </v-col>
             </v-row>
 
             <v-row>
                 <v-col cols="12" md="4">
-                    <v-card elevation="1" rounded="xl" class="pa-4 border-sm">
+                    <v-card elevation="1" rounded="xl" class="pa-4 border-sm fill-height">
                         <v-list-item
                             prepend-icon="mdi-package-variant"
                             title="Total Produk"
@@ -26,31 +22,17 @@
                 </v-col>
 
                 <v-col cols="12" md="4">
-                    <v-card
-                        elevation="1"
-                        rounded="xl"
-                        class="pa-4 border-sm"
-                        color="error"
-                        variant="tonal"
-                    >
+                    <v-card elevation="1" rounded="xl" class="pa-4 border-sm fill-height" color="error" variant="tonal">
                         <v-list-item
                             prepend-icon="mdi-alert-circle"
                             title="Stok Kritis"
-                            :subtitle="
-                                stats.low_stock_count + ' Produk Perlu Re-stock'
-                            "
+                            :subtitle="stats.low_stock_count + ' Produk Perlu Re-stock'"
                         ></v-list-item>
                     </v-card>
                 </v-col>
 
                 <v-col cols="12" md="4">
-                    <v-card
-                        elevation="1"
-                        rounded="xl"
-                        class="pa-4 border-sm"
-                        color="success"
-                        variant="tonal"
-                    >
+                    <v-card elevation="1" rounded="xl" class="pa-4 border-sm fill-height" color="success" variant="tonal">
                         <v-list-item
                             prepend-icon="mdi-cash-multiple"
                             title="Estimasi Nilai Aset"
@@ -62,37 +44,48 @@
 
             <v-row class="mt-4">
                 <v-col cols="12" md="8">
-                    <v-card elevation="1" rounded="xl" class="pa-6 border-sm">
+                    <v-card elevation="1" rounded="xl" class="pa-6 border-sm fill-height">
                         <div class="mb-4">
-                            <h3 class="text-h6 font-weight-bold">
-                                Trend Pergerakan Barang
-                            </h3>
-                            <p class="text-caption text-grey">
-                                Data 7 hari terakhir
-                            </p>
+                            <h3 class="text-h6 font-weight-bold">Trend Pergerakan Barang</h3>
+                            <p class="text-caption text-grey">Data 7 hari terakhir</p>
                         </div>
-                        <div style="height: 300px">
+                        <div style="height: 350px">
                             <Bar :data="chartConfig" :options="chartOptions" />
                         </div>
                     </v-card>
                 </v-col>
 
                 <v-col cols="12" md="4">
-                    <v-card elevation="1" rounded="xl" class="border-sm">
-                        <v-card-title
-                            class="pa-4 font-weight-bold text-error d-flex align-center"
-                        >
-                            <v-icon
-                                icon="mdi-alert-decagram"
-                                class="me-2"
-                            ></v-icon>
+                    <v-card elevation="1" rounded="xl" class="pa-6 border-sm fill-height">
+                        <h3 class="text-h6 font-weight-bold mb-4">5 Barang Terlaris</h3>
+                        <v-list class="px-0">
+                            <div v-for="(item, index) in topProducts" :key="index" class="mb-4">
+                                <div class="d-flex justify-space-between mb-1">
+                                    <span class="font-weight-medium">{{ item.name }}</span>
+                                    <span class="text-primary font-weight-bold">{{ item.total }} Pcs</span>
+                                </div>
+                                <v-progress-linear
+                                    :model-value="calculatePercent(item.total)"
+                                    color="primary"
+                                    height="10"
+                                    rounded
+                                    striped
+                                ></v-progress-linear>
+                            </div>
+                        </v-list>
+                    </v-card>
+                </v-col>
+            </v-row>
+
+            <v-row class="mt-4">
+                <v-col cols="12" md="4">
+                    <v-card elevation="1" rounded="xl" class="border-sm fill-height">
+                        <v-card-title class="pa-4 font-weight-bold text-error d-flex align-center">
+                            <v-icon icon="mdi-alert-decagram" class="me-2"></v-icon>
                             Stok Menipis
                         </v-card-title>
                         <v-divider></v-divider>
-                        <v-list
-                            lines="two"
-                            style="max-height: 315px; overflow-y: auto"
-                        >
+                        <v-list lines="two" style="max-height: 350px; overflow-y: auto">
                             <v-list-item
                                 v-for="item in stats.low_stock_list"
                                 :key="item.id"
@@ -100,110 +93,49 @@
                                 :subtitle="'Sisa: ' + item.stock + ' Pcs'"
                             >
                                 <template v-slot:append>
-                                    <v-btn
-                                        icon="mdi-plus"
-                                        size="x-small"
-                                        color="primary"
-                                        variant="flat"
-                                        @click="router.visit('/products')"
-                                    ></v-btn>
+                                    <v-btn icon="mdi-plus" size="x-small" color="primary" variant="flat" @click="router.visit('/products')"></v-btn>
                                 </template>
                             </v-list-item>
-                            <v-list-item
-                                v-if="stats.low_stock_list.length === 0"
-                                class="text-center text-grey"
-                            >
+                            <v-list-item v-if="stats.low_stock_list.length === 0" class="text-center text-grey py-4">
                                 Stok masih aman terkendali!
                             </v-list-item>
                         </v-list>
                     </v-card>
                 </v-col>
-            </v-row>
 
-            <v-row class="mt-4">
-                <v-col cols="12">
-                    <v-card elevation="1" rounded="xl" class="border-sm">
-                        <v-card-title class="pa-4 font-weight-bold"
-                            >History Terakhir</v-card-title
-                        >
+                <v-col cols="12" md="8">
+                    <v-card elevation="1" rounded="xl" class="border-sm fill-height">
+                        <v-card-title class="pa-4 font-weight-bold d-flex justify-space-between align-center">
+                            History Terakhir
+                            <v-btn variant="text" color="primary" @click="router.visit('/history')">Lihat Semua</v-btn>
+                        </v-card-title>
                         <v-divider></v-divider>
-                        <v-table>
+                        <v-table density="comfortable">
                             <thead>
                                 <tr>
-                                    <th class="font-weight-bold">Produk</th>
-                                    <th class="font-weight-bold text-center">
-                                        Tipe
-                                    </th>
-                                    <th class="font-weight-bold text-center">
-                                        Jumlah
-                                    </th>
-                                    <th class="font-weight-bold text-right">
-                                        Waktu
-                                    </th>
+                                    <th class="text-left font-weight-bold">Produk</th>
+                                    <th class="text-center font-weight-bold">Tipe</th>
+                                    <th class="text-center font-weight-bold">Jumlah</th>
+                                    <th class="text-right font-weight-bold">Waktu</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr
-                                    v-for="log in stats.recent_movements"
-                                    :key="log.id"
-                                >
-                                    <td>
-                                        {{
-                                            log.product?.name ||
-                                            "Produk dihapus"
-                                        }}
-                                    </td>
+                                <tr v-for="log in stats.recent_movements" :key="log.id">
+                                    <td>{{ log.product?.name || "Produk dihapus" }}</td>
                                     <td class="text-center">
-                                        <v-chip
-                                            :color="
-                                                log.type === 'in'
-                                                    ? 'success'
-                                                    : 'orange'
-                                            "
-                                            size="x-small"
-                                            variant="flat"
-                                        >
-                                            {{
-                                                log.type === "in"
-                                                    ? "MASUK"
-                                                    : "KELUAR"
-                                            }}
+                                        <v-chip :color="log.type === 'in' ? 'success' : 'orange'" size="x-small" variant="flat">
+                                            {{ log.type === "in" ? "MASUK" : "KELUAR" }}
                                         </v-chip>
                                     </td>
-                                    <td
-                                        :class="
-                                            log.type === 'in'
-                                                ? 'text-success'
-                                                : 'text-error'
-                                        "
-                                        class="text-center font-weight-bold"
-                                    >
-                                        {{ log.type === "in" ? "+" : "-"
-                                        }}{{ log.quantity }}
+                                    <td :class="log.type === 'in' ? 'text-success' : 'text-error'" class="text-center font-weight-bold">
+                                        {{ log.type === "in" ? "+" : "-" }}{{ log.quantity }}
                                     </td>
-                                    <td
-                                        class="text-right text-caption text-grey"
-                                    >
-                                        {{
-                                            new Date(
-                                                log.created_at,
-                                            ).toLocaleString("id-ID")
-                                        }}
+                                    <td class="text-right text-caption text-grey">
+                                        {{ new Date(log.created_at).toLocaleString("id-ID") }}
                                     </td>
                                 </tr>
                             </tbody>
                         </v-table>
-                        <v-divider></v-divider>
-                        <v-card-actions>
-                            <v-btn
-                                variant="text"
-                                color="primary"
-                                block
-                                @click="router.visit('/history')"
-                            >
-                                Lihat Semua Riwayat
-                            </v-btn>
-                        </v-card-actions>
                     </v-card>
                 </v-col>
             </v-row>
@@ -226,22 +158,19 @@ import {
 } from "chart.js";
 import { computed } from "vue";
 
-// Registrasi ChartJS
-ChartJS.register(
-    Title,
-    Tooltip,
-    Legend,
-    BarElement,
-    CategoryScale,
-    LinearScale,
-);
+ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
 
 const props = defineProps({
     stats: Object,
     chartData: Object,
+    topProducts: Array,
 });
 
-// Formatter Mata Uang
+const calculatePercent = (val) => {
+    const max = props.topProducts[0]?.total || 100;
+    return (val / max) * 100;
+};
+
 const formatIDR = (val) => {
     if (!val) return "Rp 0";
     return new Intl.NumberFormat("id-ID", {
@@ -251,7 +180,6 @@ const formatIDR = (val) => {
     }).format(val);
 };
 
-// Konfigurasi Grafik
 const chartConfig = computed(() => ({
     labels: props.chartData?.labels || [],
     datasets: [
