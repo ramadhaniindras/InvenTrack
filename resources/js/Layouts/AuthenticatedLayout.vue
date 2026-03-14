@@ -20,12 +20,21 @@
                 ></v-list-item>
 
                 <v-list-item
-                    prepend-icon="mdi-package-variant-closed"
-                    title="Inventory"
-                    @click="$inertia.visit(route('products.index'))"
-                    :active="route().current('products.*')"
-                    rounded="lg"
-                ></v-list-item>
+                    prepend-icon="mdi-package-variant"
+                    title="Data Produk"
+                    @click="router.visit('/products')"
+                >
+                    <template
+                        v-slot:append
+                        v-if="$page.props.low_stock_count > 0"
+                    >
+                        <v-badge
+                            color="error"
+                            :content="$page.props.low_stock_count"
+                            inline
+                        ></v-badge>
+                    </template>
+                </v-list-item>
 
                 <v-list-item
                     prepend-icon="mdi-history"
@@ -80,8 +89,15 @@
 
             <div class="me-4 text-caption text-grey-darken-1">
                 Logged in as:
-                <span class="font-weight-bold text-primary">{{ $page.props.auth.user.name }}</span>
-                <v-chip size="x-small" class="ms-2 text-uppercase" color="primary" variant="tonal">
+                <span class="font-weight-bold text-primary">{{
+                    $page.props.auth.user.name
+                }}</span>
+                <v-chip
+                    size="x-small"
+                    class="ms-2 text-uppercase"
+                    color="primary"
+                    variant="tonal"
+                >
                     {{ $page.props.auth.user.role }}
                 </v-chip>
             </div>
@@ -100,13 +116,17 @@
             :timeout="4000"
         >
             <div class="d-flex align-center">
-                <v-icon 
-                    :icon="snackbarColor === 'success' ? 'mdi-check-circle' : 'mdi-alert-circle'" 
+                <v-icon
+                    :icon="
+                        snackbarColor === 'success'
+                            ? 'mdi-check-circle'
+                            : 'mdi-alert-circle'
+                    "
                     class="me-3"
                 ></v-icon>
                 <span class="font-weight-medium">{{ snackbarText }}</span>
             </div>
-            
+
             <template v-slot:actions>
                 <v-btn
                     icon="mdi-close"
@@ -130,7 +150,7 @@ const pageTitle = computed(() => {
     if (route().current("products.*")) return "Stock Management";
     if (route().current("history.*")) return "Transaction Logs";
     if (route().current("categories.*")) return "Category Management";
-    if (route().current("reports.*")) return "Reports Center"; 
+    if (route().current("reports.*")) return "Reports Center";
     return "InvenTrack System";
 });
 
@@ -157,6 +177,6 @@ watch(
             snackbar.value = true;
         }
     },
-    { deep: true, immediate: true }
+    { deep: true, immediate: true },
 );
 </script>

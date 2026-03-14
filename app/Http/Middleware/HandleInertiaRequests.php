@@ -41,6 +41,7 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'success' => fn() => $request->session()->get('success'),
                 'error' => fn() => $request->session()->get('error'),
+                'low_stock_count' => \App\Models\Product::where('stock', '<=', 10)->count(),
             ],
         ]);
     }

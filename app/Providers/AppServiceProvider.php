@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 use App\Models\StockMovement;
-use App\Observers\StockMovementObserver;
+use App\StockMovementsrs\StockMovementStockMovementsr;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 
@@ -13,7 +13,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        
+
     }
 
     /**
@@ -22,6 +22,5 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Vite::prefetch(concurrency: 3);
-        StockMovement::observe(StockMovementObserver::class);
     }
 }

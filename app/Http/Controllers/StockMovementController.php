@@ -7,10 +7,11 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth; // Tambahin ini bro
+use Illuminate\Support\Facades\Auth;
 
 class StockMovementController extends Controller
 {
+
     public function index(Request $request)
     {
         $query = StockMovement::with(['product', 'user'])->latest();
@@ -18,49 +19,80 @@ class StockMovementController extends Controller
         if ($request->search) {
             $query->whereHas('product', function ($q) use ($request) {
                 $q->where('name', 'like', "%{$request->search}%")
-                  ->orWhere('sku', 'like', "%{$request->search}%");
+                    ->orWhere('sku', 'like', "%{$request->search}%");
             });
         }
 
-        // Pastiin path ini SAMA PERSIS dengan folder di resources/js/Pages
         return Inertia::render('StockMovements/Index', [
             'history' => $query->paginate(10)->withQueryString(),
             'filters' => $request->only(['search'])
         ]);
     }
 
+
     public function store(Request $request)
     {
-        $attr = $request->validate([
+        $request->validate([
             'product_id' => 'required|exists:products,id',
             'type' => 'required|in:in,out',
             'quantity' => 'required|integer|min:1',
-            'reference' => 'nullable|string',
-            'notes' => 'nullable|string',
         ]);
 
-        $attr['user_id'] = Auth::id(); // Pake Facade biar lebih mantap
+        return DB::transaction(function () use ($request) {
 
-        $product = Product::findOrFail($request->product_id);
+            $product = Product::lockForUpdate()->findOrFail($request->product_id);
 
-        if ($request->type === 'out' && $product->stock < $request->quantity) {
-            return redirect()->back()->with('error', 'Stok nggak cukup bro!');
-        }
-
-        DB::transaction(function () use ($attr, $product) {
-            StockMovement::create($attr);
-
-            if ($attr['type'] === 'in') {
-                $product->increment('stock', $attr['quantity']);
-            } else {
-                $product->decrement('stock', $attr['quantity']);
+            if ($request->type === 'out' && $product->stock < $request->quantity) {
+                return back()->with('error', "Stok kurang! Sisa cuma {$product->stock}");
             }
+
+            if ($request->type === 'in') {
+                $product->increment('stock', $request->quantity);
+            } else {
+                $product->decrement('stock', $request->quantity);
+            }
+
+            StockMovement::create([
+                'product_id' => $request->product_id,
+                'user_id' => auth()->id(),
+                'type' => $request->type,
+                'quantity' => $request->quantity,
+                'reference' => $request->reference,
+                'notes' => $request->notes,
+            ]);
+
+            return back()->with('success', 'Stok berhasil diperbarui!');
         });
+    }
 
-        $pesan = $attr['type'] === 'in'
-            ? "Stok {$product->name} berhasil ditambahin!"
-            : "Stok {$product->name} berhasil dikurangin!";
 
-        return redirect()->back()->with('success', $pesan);
+    public function adjust(Request $request)
+    {
+        $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'actual_stock' => 'required|integer|min:0',
+            'reason' => 'nullable|string'
+        ]);
+
+        return DB::transaction(function () use ($request) {
+            $product = Product::lockForUpdate()->findOrFail($request->product_id);
+            $diff = $request->actual_stock - $product->stock;
+
+            if ($diff == 0)
+                return back();
+
+            StockMovement::create([
+                'product_id' => $product->id,
+                'user_id' => auth()->id(),
+                'type' => $diff > 0 ? 'in' : 'out',
+                'quantity' => abs($diff),
+                'reference' => 'ADJUSTMENT',
+                'notes' => $request->reason ?? 'Penyesuaian stok manual',
+            ]);
+
+            $product->update(['stock' => $request->actual_stock]);
+
+            return back()->with('success', 'Stok berhasil disesuaikan!');
+        });
     }
 }

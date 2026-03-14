@@ -40,6 +40,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/history', [StockMovementController::class, 'index'])->name('history.index');
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/export', [ReportController::class, 'export'])->name('reports.export');
+    Route::post('/stock-movements/adjust', [StockMovementController::class, 'adjust'])->name('stock.adjust');
 });
 
 require __DIR__ . '/auth.php';
