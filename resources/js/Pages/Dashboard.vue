@@ -1,6 +1,4 @@
 <template>
-    <Head title="Inventory Dashboard" />
-
     <AuthenticatedLayout>
         <v-container fluid class="pa-8 bg-grey-lighten-4">
             <v-row class="mb-4 align-center">

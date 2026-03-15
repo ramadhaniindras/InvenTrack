@@ -67,6 +67,14 @@
 
             <template v-slot:append>
                 <div class="pa-4">
+                    <v-list-item
+                        v-if="$page.props.auth.user.role === 'admin'"
+                        prepend-icon="mdi-account-cog"
+                        title="Manajemen User"
+                        @click="$inertia.visit(route('users.index'))"
+                        :active="route().current('users.*')"
+                        rounded="lg"
+                    ></v-list-item>
                     <v-btn
                         block
                         color="error"
@@ -182,4 +190,3 @@ watch(
     { deep: true, immediate: true },
 );
 </script>
-
