@@ -9,7 +9,7 @@
                         class="me-3"
                     ></v-icon>
                     <v-toolbar-title class="font-weight-bold"
-                        >Inventory List</v-toolbar-title
+                        >Inventory</v-toolbar-title
                     >
 
                     <v-chip

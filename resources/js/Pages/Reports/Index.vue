@@ -1,7 +1,7 @@
 <template>
     <AuthenticatedLayout>
         <v-container class="py-10">
-            <h1 class="text-h4 font-weight-bold mb-6 text-grey-darken-3">Pusat Laporan</h1>
+            <h1 class="text-h4 font-weight-bold mb-6 text-grey-darken-3">Report Center</h1>
             
             <v-row>
                 <v-col

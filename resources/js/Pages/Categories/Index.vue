@@ -4,7 +4,7 @@
             <v-card elevation="1" rounded="xl">
                 <v-toolbar color="white" flat class="border-b px-4">
                     <v-icon icon="mdi-tag-multiple" color="primary" class="me-3"></v-icon>
-                    <v-toolbar-title class="font-weight-bold">Manajemen Kategori</v-toolbar-title>
+                    <v-toolbar-title class="font-weight-bold">Category Management</v-toolbar-title>
                     <v-spacer></v-spacer>
                     <v-btn 
                         color="primary" 

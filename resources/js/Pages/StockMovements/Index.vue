@@ -12,7 +12,7 @@
                                 class="me-2"
                                 color="primary"
                             ></v-icon>
-                            Riwayat Pergerakan Stok
+                            Histrory Stock
                             <v-spacer></v-spacer>
 
                             <v-text-field

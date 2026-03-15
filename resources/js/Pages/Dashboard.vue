@@ -3,8 +3,8 @@
         <v-container fluid class="pa-8 bg-grey-lighten-4">
             <v-row class="mb-4 align-center">
                 <v-col cols="12" md="7">
-                    <h1 class="text-h4 font-weight-bold text-grey-darken-3">Inventory Dashboard</h1>
-                    <p class="text-subtitle-1 text-grey">Selamat datang kembali, Bro!</p>
+                    <h1 class="text-h4 font-weight-bold text-grey-darken-3">InvenTrack Dashboard</h1>
+                    <p class="text-subtitle-1 text-grey">Selamat datang kembali!</p>
                 </v-col>
                 
                 <v-col cols="12" md="3">

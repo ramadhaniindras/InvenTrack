@@ -40,7 +40,7 @@
 
                 <v-list-item
                     prepend-icon="mdi-history"
-                    title="History Stok"
+                    title="Riwayat Stok"
                     @click="$inertia.visit(route('history.index'))"
                     :active="route().current('history.*')"
                     rounded="lg"
@@ -129,11 +129,11 @@ import Swal from "sweetalert2";
 const drawer = ref(true);
 
 const pageTitle = computed(() => {
-    if (route().current("dashboard")) return "Dashboard Overview";
-    if (route().current("products.*")) return "Stock Management";
-    if (route().current("history.*")) return "Transaction Logs";
-    if (route().current("categories.*")) return "Category Management";
-    if (route().current("reports.*")) return "Reports Center";
+    if (route().current("dashboard")) return "Dashboard";
+    if (route().current("products.*")) return "Data Produk";
+    if (route().current("history.*")) return "Riwayat Stok";
+    if (route().current("categories.*")) return "Kategori";
+    if (route().current("reports.*")) return "Laporan";
     if (route().current("users.*")) return "User Settings";
     return "InvenTrack System";
 });
