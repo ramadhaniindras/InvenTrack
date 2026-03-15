@@ -18,7 +18,8 @@ class CategoryController extends Controller implements HasMiddleware
         return [
             new Middleware(function ($request, $next) {
                 if ($request->user()->role !== 'admin') {
-                    return redirect('/dashboard')->with('error', 'Lu bukan admin bro, nggak boleh ke sini!');
+                    // Pakai 'error' biar dibaca SweetAlert nantinya
+                    return redirect('/dashboard')->with('error', 'Akses ditolak! Khusus Admin.');
                 }
                 return $next($request);
             }),
@@ -31,7 +32,7 @@ class CategoryController extends Controller implements HasMiddleware
     public function index()
     {
         return Inertia::render('Categories/Index', [
-            'categories' => Category::select('id', 'name')->withCount('products')->get()
+            'categories' => Category::select('id', 'name')->withCount('products')->latest()->get()
         ]);
     }
 
@@ -49,9 +50,6 @@ class CategoryController extends Controller implements HasMiddleware
         return redirect()->back()->with('success', 'Kategori berhasil ditambah!');
     }
 
-    /**
-     * Update Kategori
-     */
     public function update(Request $request, Category $category)
     {
         $attr = $request->validate([
@@ -59,21 +57,18 @@ class CategoryController extends Controller implements HasMiddleware
         ]);
 
         $category->update($attr);
-        
-        return redirect()->back()->with('success', 'Kategori berhasil diperbarui!');
+
+        return redirect()->back()->with('success', 'Kategori diperbarui!');
     }
 
-    /**
-     * Hapus Kategori
-     */
     public function destroy(Category $category)
     {
-        if ($category->products()->count() > 0) {
-            return redirect()->back()->with('error', 'Gagal! Kategori masih dipakai oleh produk.');
+        if ($category->products()->exists()) {
+            return redirect()->back()->with('error', 'Gagal! Masih ada barang di kategori ini.');
         }
-
         $category->delete();
-        return redirect()->back()->with('success', 'Kategori berhasil dihapus!');
+
+        return redirect()->back()->with('success', 'Kategori ' . $category->name . ' resmi dihapus! 🗑️');
     }
 }
 

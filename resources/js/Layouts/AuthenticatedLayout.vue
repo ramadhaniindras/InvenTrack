@@ -74,6 +74,7 @@
                         @click="$inertia.visit(route('users.index'))"
                         :active="route().current('users.*')"
                         rounded="lg"
+                        class="mb-2"
                     ></v-list-item>
                     <v-btn
                         block
@@ -97,7 +98,7 @@
             </v-toolbar-title>
             <v-spacer></v-spacer>
 
-            <div class="me-4 text-caption text-grey-darken-1">
+            <div class="me-4 text-caption text-grey-darken-1 d-none d-sm-block">
                 Logged in as:
                 <span class="font-weight-bold text-primary">{{
                     $page.props.auth.user.name
@@ -117,43 +118,15 @@
             <slot />
         </v-main>
 
-        <v-snackbar
-            v-model="snackbar"
-            :color="snackbarColor"
-            elevation="24"
-            rounded="xl"
-            location="top right"
-            :timeout="4000"
-        >
-            <div class="d-flex align-center">
-                <v-icon
-                    :icon="
-                        snackbarColor === 'success'
-                            ? 'mdi-check-circle'
-                            : 'mdi-alert-circle'
-                    "
-                    class="me-3"
-                ></v-icon>
-                <span class="font-weight-medium">{{ snackbarText }}</span>
-            </div>
-
-            <template v-slot:actions>
-                <v-btn
-                    icon="mdi-close"
-                    variant="text"
-                    @click="snackbar = false"
-                ></v-btn>
-            </template>
-        </v-snackbar>
-    </v-app>
+        </v-app>
 </template>
 
 <script setup>
-import { ref, computed, watch } from "vue";
-import { router, usePage } from "@inertiajs/vue3";
+import { ref, computed } from "vue";
+import { router } from "@inertiajs/vue3";
+import Swal from "sweetalert2";
 
 const drawer = ref(true);
-const page = usePage();
 
 const pageTitle = computed(() => {
     if (route().current("dashboard")) return "Dashboard Overview";
@@ -161,32 +134,24 @@ const pageTitle = computed(() => {
     if (route().current("history.*")) return "Transaction Logs";
     if (route().current("categories.*")) return "Category Management";
     if (route().current("reports.*")) return "Reports Center";
+    if (route().current("users.*")) return "User Settings";
     return "InvenTrack System";
 });
 
 const logout = () => {
-    if (confirm("Yakin mau keluar?")) {
-        router.post(route("logout"));
-    }
-};
-
-const snackbar = ref(false);
-const snackbarText = ref("");
-const snackbarColor = ref("success");
-
-watch(
-    () => page.props.flash,
-    (flash) => {
-        if (flash?.success) {
-            snackbarText.value = flash.success;
-            snackbarColor.value = "success";
-            snackbar.value = true;
-        } else if (flash?.error) {
-            snackbarText.value = flash.error;
-            snackbarColor.value = "error";
-            snackbar.value = true;
+    Swal.fire({
+        title: "Mau keluar?",
+        text: "Sesi lu bakal berakhir di sini bro.",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Ya, Logout",
+        cancelButtonText: "Batal",
+    }).then((result) => {
+        if (result.isConfirmed) {
+            router.post(route("logout"));
         }
-    },
-    { deep: true, immediate: true },
-);
+    });
+};
 </script>

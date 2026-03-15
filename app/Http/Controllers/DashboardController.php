@@ -4,29 +4,26 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\StockMovement;
-use Illuminate\Http\Request; // Tambahin ini biar gak error
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
-    public function index(Request $request) // Pastikan ada Request $request
+    public function index(Request $request) 
     {
-        // 1. Ambil Input Filter (Default ke bulan/tahun sekarang)
+
         $month = $request->input('month', Carbon::now()->month);
         $year = $request->input('year', Carbon::now()->year);
 
-        // 2. Tentukan Range Tanggal
         $startDate = Carbon::createFromDate($year, $month, 1)->startOfMonth();
         $endDate = Carbon::createFromDate($year, $month, 1)->endOfMonth();
 
-        // Kalau pilih bulan sekarang, batasi grafik sampai hari ini aja biar gak melompong kedepan
         if ($startDate->isCurrentMonth()) {
             $endDate = Carbon::now();
         }
 
-        // 3. Siapkan Data Grafik (Harian dalam 1 bulan)
         $daysLabels = [];
         $stockIn = [];
         $stockOut = [];
@@ -47,7 +44,6 @@ class DashboardController extends Controller
             $current->addDay();
         }
 
-        // 4. Ambil 5 Produk Terlaris berdasarkan range tanggal
         $topProducts = StockMovement::query()
             ->where('type', 'out')
             ->whereBetween('created_at', [$startDate->startOfDay(), $endDate->endOfDay()])
@@ -62,7 +58,6 @@ class DashboardController extends Controller
                 'total' => (int) $item->total_out
             ]);
 
-        // 5. Statistik Utama (Gua satuin biar ringkas)
         $stats = [
             'total_products' => Product::count(),
             'low_stock_count' => Product::whereColumn('stock', '<=', 'min_stock')->count(),
@@ -77,7 +72,7 @@ class DashboardController extends Controller
                 ->get(),
         ];
 
-        // 6. Return ke Vue
+
         return Inertia::render('Dashboard', [
             'stats' => $stats,
             'topProducts' => $topProducts,

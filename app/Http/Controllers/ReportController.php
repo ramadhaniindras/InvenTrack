@@ -35,7 +35,6 @@ class ReportController extends Controller implements HasMiddleware
     $period = $request->query('period', 'all');
     $title = "Laporan Transaksi";
 
-    // Logic baru: Kalau ada filter bulan & tahun manual
     if ($request->has('month') && $request->has('year')) {
         $month = $request->month;
         $year = $request->year;
@@ -44,7 +43,7 @@ class ReportController extends Controller implements HasMiddleware
         $monthName = Carbon::create()->month($month)->translatedFormat('F');
         $title = "Laporan Periode $monthName $year";
     } 
-    // Logic lama: Periode instan
+
     elseif ($period == 'daily') {
         $query->whereDate('created_at', Carbon::today());
         $title = "Laporan Harian";
