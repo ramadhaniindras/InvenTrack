@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Storage;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ProductController extends Controller
 {
-    /**
-     * Menampilkan daftar produk
-     */
+
     public function index(Request $request)
     {
         $query = Product::with('category');
+        
         if ($request->has('category_id')) {
             $query->where('category_id', $request->category_id);
         }
@@ -27,43 +27,61 @@ class ProductController extends Controller
         ]);
     }
 
-    /**
-     * Menyimpan produk baru
-     */
     public function store(Request $request)
     {
         $attr = $request->validate([
-            'sku' => 'required|unique:products,sku',
-            'name' => 'required|string|max:255',
+            'sku'         => 'required|unique:products,sku',
+            'name'        => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
-            'stock' => 'required|integer|min:0',
-            'min_stock' => 'required|integer|min:0',
-            'price' => 'required|numeric|min:0',
+            'stock'       => 'required|integer|min:0',
+            'min_stock'   => 'required|integer|min:0',
+            'price'       => 'required|numeric|min:0',
+            'image'       => 'nullable|image|mimes:jpg,jpeg,png|max:2048', // Max 2MB
         ]);
 
+        if ($request->hasFile('image')) {
+            $attr['image'] = $request->file('image')->store('products', 'public');
+        }
+
         Product::create($attr);
-        return redirect()->route('products.index')->with('success', 'Barang baru berhasil ditambah!');
+
+        return redirect()->route('products.index')->with('success', 'Barang mantap, foto tersimpan! 📸');
     }
 
     public function update(Request $request, Product $product)
     {
         $attr = $request->validate([
-            'sku' => 'required|unique:products,sku,' . $product->id,
-            'name' => 'required|string',
+            'sku'         => 'required|unique:products,sku,' . $product->id,
+            'name'        => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
-            'stock' => 'required|numeric',
-            'min_stock' => 'required|numeric',
-            'price' => 'required|numeric',
+            'stock'       => 'required|numeric|min:0',
+            'min_stock'   => 'required|numeric|min:0',
+            'price'       => 'required|numeric|min:0',
+            'image'       => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        $product->update($request->all());
-        return redirect()->back()->with('success', 'Data barang berhasil diupdate!');
+        if ($request->hasFile('image')) {
+            if ($product->image) {
+                Storage::disk('public')->delete($product->image);
+            }
+            $attr['image'] = $request->file('image')->store('products', 'public');
+        }
+
+        $product->update($attr);
+
+        return redirect()->back()->with('success', 'Data barang berhasil diupdate! ✨');
     }
+
 
     public function destroy(Product $product)
     {
+        if ($product->image) {
+            Storage::disk('public')->delete($product->image);
+        }
+
         $product->delete();
-        return redirect()->back()->with('success', 'Barang udah dihapus dari list.');
+        
+        return redirect()->back()->with('success', 'Barang udah dihapus dari list. 🗑️');
     }
 
     public function exportPdf()
@@ -72,12 +90,11 @@ class ProductController extends Controller
         $totalAsset = $products->sum(fn($p) => $p->stock * $p->price);
 
         $pdf = Pdf::loadView('pdf.products', [
-            'products' => $products,
+            'products'   => $products,
             'totalAsset' => $totalAsset,
-            'date' => now()->format('d F Y')
+            'date'       => now()->format('d F Y')
         ]);
+
         return $pdf->download('laporan-stok-barang.pdf');
     }
 }
-
-

@@ -3,152 +3,60 @@
         <v-container fluid class="px-6 py-10">
             <v-card elevation="1" rounded="xl">
                 <v-toolbar color="white" flat class="border-b px-4 py-2">
-                    <v-icon
-                        icon="mdi-package-variant-closed"
-                        color="primary"
-                        class="me-3"
-                    ></v-icon>
-                    <v-toolbar-title class="font-weight-bold"
-                        >Inventory</v-toolbar-title
-                    >
+                    <v-icon icon="mdi-package-variant-closed" color="primary" class="me-3"></v-icon>
+                    <v-toolbar-title class="font-weight-bold">Inventory</v-toolbar-title>
 
-                    <v-chip
-                        size="x-small"
-                        variant="tonal"
-                        color="primary"
-                        class="me-2"
-                    >
+                    <v-chip size="x-small" variant="tonal" color="primary" class="me-2">
                         Total: <strong>{{ products.length }}</strong>
                     </v-chip>
 
-                    <v-chip
-                        v-if="products.filter((p) => p.stock <= p.min_stock).length > 0"
-                        size="x-small"
-                        variant="tonal"
-                        color="error"
-                        class="me-2"
-                    >
-                        Restock:
-                        <strong>{{
-                            products.filter((p) => p.stock <= p.min_stock).length
-                        }}</strong>
+                    <v-chip v-if="products.filter((p) => p.stock <= p.min_stock).length > 0" size="x-small" variant="tonal" color="error" class="me-2">
+                        Restock: <strong>{{ products.filter((p) => p.stock <= p.min_stock).length }}</strong>
                     </v-chip>
 
                     <v-spacer></v-spacer>
 
-                    <v-text-field
-                        v-model="search"
-                        prepend-inner-icon="mdi-magnify"
-                        placeholder="Cari barang..."
-                        variant="outlined"
-                        density="compact"
-                        hide-details
-                        style="max-width: 300px"
-                        rounded="lg"
-                        class="me-4"
-                    ></v-text-field>
+                    <v-text-field v-model="search" prepend-inner-icon="mdi-magnify" placeholder="Cari barang..." variant="outlined" density="compact" hide-details style="max-width: 300px" rounded="lg" class="me-4"></v-text-field>
 
                     <div class="d-flex ga-2">
-                        <v-btn
-                            color="primary"
-                            variant="tonal"
-                            prepend-icon="mdi-history"
-                            rounded="lg"
-                            @click="$inertia.visit('/history')"
-                        >
-                            History
-                        </v-btn>
-                        <v-btn
-                            color="primary"
-                            variant="flat"
-                            prepend-icon="mdi-plus"
-                            rounded="lg"
-                            @click="openDialog"
-                        >
-                            Tambah Barang
-                        </v-btn>
-                        <v-btn
-                            color="error"
-                            variant="outlined"
-                            prepend-icon="mdi-file-pdf-box"
-                            rounded="lg"
-                            @click="exportToPdf"
-                        >
-                            PDF
-                        </v-btn>
+                        <v-btn color="primary" variant="tonal" prepend-icon="mdi-history" rounded="lg" @click="$inertia.visit('/history')">History</v-btn>
+                        <v-btn color="primary" variant="flat" prepend-icon="mdi-plus" rounded="lg" @click="openDialog">Tambah Barang</v-btn>
+                        <v-btn color="error" variant="outlined" prepend-icon="mdi-file-pdf-box" rounded="lg" @click="exportToPdf">PDF</v-btn>
                     </div>
                 </v-toolbar>
 
-                <v-data-table
-                    :headers="headers"
-                    :items="products"
-                    :search="search"
-                    hover
-                    class="pa-2"
-                >
+                <v-data-table :headers="headers" :items="products" :search="search" hover class="pa-2">
+                    <template v-slot:item.image="{ item }">
+                        <v-avatar size="45" rounded="lg" class="border my-1" color="grey-lighten-4">
+                            <v-img :src="item.image ? '/storage/' + item.image : '/images/no-image.png'" cover>
+                                <template v-slot:placeholder>
+                                    <div class="d-flex align-center justify-center fill-height">
+                                        <v-icon color="grey-lighten-1">mdi-package-variant</v-icon>
+                                    </div>
+                                </template>
+                            </v-img>
+                        </v-avatar>
+                    </template>
+
                     <template v-slot:item.stock="{ item }">
-                        <v-chip
-                            :color="item.stock <= item.min_stock ? 'error' : 'success'"
-                            size="small"
-                            variant="flat"
-                            class="font-weight-bold"
-                        >
+                        <v-chip :color="item.stock <= item.min_stock ? 'error' : 'success'" size="small" variant="flat" class="font-weight-bold">
                             {{ item.stock }}
                         </v-chip>
                     </template>
 
                     <template v-slot:item.price="{ item }">
-                        <span class="font-weight-medium">{{
-                            formatCurrency(item.price)
-                        }}</span>
+                        <span class="font-weight-medium">{{ formatCurrency(item.price) }}</span>
                     </template>
 
                     <template v-slot:item.actions="{ item }">
                         <div class="d-flex align-center justify-end ga-1">
-                            <v-btn
-                                icon="mdi-arrow-up-bold"
-                                variant="text"
-                                color="success"
-                                size="small"
-                                @click="openStockDialog(item, 'in')"
-                                title="Stok Masuk"
-                            ></v-btn>
-                            <v-btn
-                                icon="mdi-arrow-down-bold"
-                                variant="text"
-                                color="orange"
-                                size="small"
-                                @click="openStockDialog(item, 'out')"
-                                title="Stok Keluar"
-                            ></v-btn>
-
+                            <v-btn icon="mdi-arrow-up-bold" variant="text" color="success" size="small" @click="openStockDialog(item, 'in')" title="Stok Masuk"></v-btn>
+                            <v-btn icon="mdi-arrow-down-bold" variant="text" color="orange" size="small" @click="openStockDialog(item, 'out')" title="Stok Keluar"></v-btn>
                             <v-divider vertical inset class="mx-2"></v-divider>
-
                             <template v-if="$page.props.auth.user.role === 'admin'">
-                                <v-btn
-                                    icon="mdi-swap-vertical"
-                                    size="x-small"
-                                    color="orange-darken-2"
-                                    variant="text"
-                                    @click="openAdjustDialog(item)"
-                                    title="Sesuaikan Stok"
-                                ></v-btn>
-                                <v-btn
-                                    icon="mdi-pencil"
-                                    variant="text"
-                                    color="blue"
-                                    size="small"
-                                    @click="editItem(item)"
-                                    title="Edit"
-                                ></v-btn>
-                                <v-btn
-                                    icon="mdi-delete"
-                                    variant="text"
-                                    color="red"
-                                    size="small"
-                                    @click="deleteItem(item.id)"
-                                    title="Hapus"
-                                ></v-btn>
+                                <v-btn icon="mdi-swap-vertical" size="x-small" color="orange-darken-2" variant="text" @click="openAdjustDialog(item)" title="Sesuaikan Stok"></v-btn>
+                                <v-btn icon="mdi-pencil" variant="text" color="blue" size="small" @click="editItem(item)" title="Edit"></v-btn>
+                                <v-btn icon="mdi-delete" variant="text" color="red" size="small" @click="deleteItem(item.id)" title="Hapus"></v-btn>
                             </template>
                         </div>
                     </template>
@@ -163,6 +71,14 @@
                     </v-card-title>
                     <v-card-text class="pt-6">
                         <v-row dense>
+                            <v-col cols="12" class="d-flex flex-column align-center mb-4">
+                                <v-avatar size="120" rounded="xl" class="border mb-3" color="grey-lighten-4">
+                                    <v-img :src="imagePreview || (isEditing && form.old_image ? '/storage/' + form.old_image : '/images/no-image.png')" cover></v-img>
+                                </v-avatar>
+                                <v-file-input v-model="imageFile" label="Pilih Foto Barang" variant="outlined" prepend-icon="mdi-camera" accept="image/*" density="comfortable" hide-details @change="handleImageChange" @click:clear="clearImage" style="width: 100%"></v-file-input>
+                                <div class="text-caption text-grey mt-1">Format: JPG, PNG. Maks: 2MB</div>
+                            </v-col>
+
                             <v-col cols="12" md="6">
                                 <v-text-field v-model="form.sku" label="SKU / Kode Barang" variant="outlined" density="comfortable" :error-messages="form.errors.sku"></v-text-field>
                             </v-col>
@@ -254,6 +170,8 @@ const stockDialog = ref(false);
 const adjustDialog = ref(false);
 const isEditing = ref(false);
 const search = ref("");
+const imagePreview = ref(null);
+const imageFile = ref(null);
 
 const currentProductStock = computed(() => {
     if (!stockForm.product_id) return 0;
@@ -262,6 +180,7 @@ const currentProductStock = computed(() => {
 });
 
 const headers = [
+    { title: "Foto", key: "image", sortable: false, align: "start" },
     { title: "SKU", key: "sku", align: "start", sortable: true },
     { title: "Nama Barang", key: "name", align: "start" },
     { title: "Kategori", key: "category.name", align: "start" },
@@ -269,7 +188,6 @@ const headers = [
     { title: "Harga", key: "price", align: "start" },
     { title: "Aksi", key: "actions", sortable: false, align: "end" },
 ];
-
 
 const form = useForm({
     id: null,
@@ -279,8 +197,9 @@ const form = useForm({
     stock: 0,
     min_stock: 5,
     price: 0,
+    image: null,
+    old_image: null,
 });
-
 
 const stockForm = useForm({
     product_id: null,
@@ -291,12 +210,7 @@ const stockForm = useForm({
     notes: "",
 });
 
-
-const adjustForm = useForm({ 
-    product_id: null, 
-    actual_stock: 0, 
-    reason: "" 
-});
+const adjustForm = useForm({ product_id: null, actual_stock: 0, reason: "" });
 
 const formatCurrency = (val) =>
     new Intl.NumberFormat("id-ID", {
@@ -305,22 +219,42 @@ const formatCurrency = (val) =>
         minimumFractionDigits: 0,
     }).format(val);
 
+const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        form.image = file;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            imagePreview.value = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+};
+
+const clearImage = () => {
+    form.image = null;
+    imagePreview.value = null;
+    imageFile.value = null;
+};
 
 const openDialog = () => {
     isEditing.value = false;
-    form.reset(); 
+    clearImage();
+    form.reset();
     form.clearErrors();
     dialog.value = true;
 };
 
 const closeDialog = () => {
     dialog.value = false;
+    clearImage();
     form.reset();
     form.clearErrors();
 };
 
 const editItem = (item) => {
     isEditing.value = true;
+    clearImage();
     form.clearErrors();
     form.id = item.id;
     form.sku = item.sku;
@@ -329,18 +263,28 @@ const editItem = (item) => {
     form.stock = item.stock;
     form.min_stock = item.min_stock;
     form.price = item.price;
+    form.old_image = item.image;
+    form.image = null;
     dialog.value = true;
 };
 
 const submit = () => {
-    const action = isEditing.value
-        ? route("products.update", form.id)
+    const action = isEditing.value 
+        ? route("products.update", form.id) 
         : route("products.store");
-    const method = isEditing.value ? "put" : "post";
 
-    form[method](action, {
-        onSuccess: () => closeDialog(),
-    });
+    if (isEditing.value) {
+        form.transform((data) => ({
+            ...data,
+            _method: "put",
+        })).post(action, { 
+            onSuccess: () => closeDialog(),
+        });
+    } else {
+        form.post(action, {
+            onSuccess: () => closeDialog(),
+        });
+    }
 };
 
 const deleteItem = (id) => {
@@ -356,7 +300,7 @@ const openStockDialog = (item, type) => {
     stockForm.product_id = item.id;
     stockForm.product_name = item.name;
     stockForm.type = type;
-    stockForm.quantity = 1; 
+    stockForm.quantity = 1;
     stockDialog.value = true;
 };
 
@@ -368,11 +312,10 @@ const submitStock = () => {
     stockForm.post(route("stock-movements.store"), {
         onSuccess: () => {
             stockDialog.value = false;
-            stockForm.reset(); 
+            stockForm.reset();
         },
     });
 };
-
 
 const openAdjustDialog = (product) => {
     adjustForm.reset();
@@ -386,7 +329,7 @@ const submitAdjust = () => {
     adjustForm.post(route("stock.adjust"), {
         onSuccess: () => {
             adjustDialog.value = false;
-            adjustForm.reset(); 
+            adjustForm.reset();
         },
     });
 };
