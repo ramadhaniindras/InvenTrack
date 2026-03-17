@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Http\Request;
@@ -15,7 +17,7 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $query = Product::with('category');
-        
+
         if ($request->has('category_id')) {
             $query->where('category_id', $request->category_id);
         }
@@ -30,13 +32,13 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $attr = $request->validate([
-            'sku'         => 'required|unique:products,sku',
-            'name'        => 'required|string|max:255',
+            'sku' => 'required|unique:products,sku',
+            'name' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
-            'stock'       => 'required|integer|min:0',
-            'min_stock'   => 'required|integer|min:0',
-            'price'       => 'required|numeric|min:0',
-            'image'       => 'nullable|image|mimes:jpg,jpeg,png|max:2048', // Max 2MB
+            'stock' => 'required|integer|min:0',
+            'min_stock' => 'required|integer|min:0',
+            'price' => 'required|numeric|min:0',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048', // Max 2MB
         ]);
 
         if ($request->hasFile('image')) {
@@ -51,13 +53,13 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         $attr = $request->validate([
-            'sku'         => 'required|unique:products,sku,' . $product->id,
-            'name'        => 'required|string|max:255',
+            'sku' => 'required|unique:products,sku,' . $product->id,
+            'name' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
-            'stock'       => 'required|numeric|min:0',
-            'min_stock'   => 'required|numeric|min:0',
-            'price'       => 'required|numeric|min:0',
-            'image'       => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'stock' => 'required|numeric|min:0',
+            'min_stock' => 'required|numeric|min:0',
+            'price' => 'required|numeric|min:0',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
         if ($request->hasFile('image')) {
@@ -80,7 +82,7 @@ class ProductController extends Controller
         }
 
         $product->delete();
-        
+
         return redirect()->back()->with('success', 'Barang udah dihapus dari list. 🗑️');
     }
 
@@ -90,11 +92,18 @@ class ProductController extends Controller
         $totalAsset = $products->sum(fn($p) => $p->stock * $p->price);
 
         $pdf = Pdf::loadView('pdf.products', [
-            'products'   => $products,
+            'products' => $products,
             'totalAsset' => $totalAsset,
-            'date'       => now()->format('d F Y')
+            'date' => now()->format('d F Y')
         ]);
 
         return $pdf->download('laporan-stok-barang.pdf');
+    }
+    public function downloadQrCode($id)
+    {
+        $product = Product::findOrFail($id);
+        $qrcode = QrCode::size(200)->generate($product->sku);
+
+        return view('products.qrcode_print', compact('product', 'qrcode'));
     }
 }
