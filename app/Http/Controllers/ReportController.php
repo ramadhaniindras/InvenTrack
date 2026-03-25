@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\StockMovement;
+use App\Models\Product; // Tambahin ini buat ngitung aset
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Inertia\Inertia;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller implements HasMiddleware
 {
@@ -29,43 +31,50 @@ class ReportController extends Controller implements HasMiddleware
         return Inertia::render('Reports/Index');
     }
 
- public function export(Request $request)
-{
-    $query = StockMovement::with(['product', 'user']);
-    $period = $request->query('period', 'all');
-    $title = "Laporan Transaksi";
+    public function export(Request $request)
+    {
+        $period = $request->query('period');
+        $filter = $request->query('filter');
 
-    if ($request->has('month') && $request->has('year')) {
-        $month = $request->month;
-        $year = $request->year;
-        $query->whereMonth('created_at', $month)->whereYear('created_at', $year);
-        
-        $monthName = Carbon::create()->month($month)->translatedFormat('F');
-        $title = "Laporan Periode $monthName $year";
-    } 
+        if (!$filter) {
+            $filter = date('Y-m-d');
+        }
 
-    elseif ($period == 'daily') {
-        $query->whereDate('created_at', Carbon::today());
-        $title = "Laporan Harian";
-    } elseif ($period == 'weekly') {
-        $query->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
-        $title = "Laporan Mingguan";
-    } elseif ($period == 'monthly') {
-        $query->whereMonth('created_at', Carbon::now()->month)->whereYear('created_at', Carbon::now()->year);
-        $title = "Laporan Bulanan";
-    } elseif ($period == 'yearly') {
-        $query->whereYear('created_at', Carbon::now()->year);
-        $title = "Laporan Tahunan";
+        $query = StockMovement::query()->with(['product', 'user']);
+
+        // Logic Filter Periode
+        if ($period == 'daily') {
+            $query->whereDate('created_at', $filter);
+            $title = "Laporan Harian - " . Carbon::parse($filter)->translatedFormat('d F Y');
+        } elseif ($period == 'weekly') {
+            $startDate = Carbon::parse($filter)->startOfDay();
+            $endDate = Carbon::parse($filter)->addDays(6)->endOfDay();
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+            $title = "Laporan Mingguan " . $startDate->format('d-m-Y') . " sd " . $endDate->format('d-m-Y');
+        } elseif ($period == 'monthly') {
+            $date = Carbon::parse($filter);
+            $query->whereYear('created_at', $date->year)->whereMonth('created_at', $date->month);
+            $title = "Laporan Bulanan - " . $date->translatedFormat('F Y');
+        } elseif ($period == 'yearly') {
+            $query->whereYear('created_at', $filter);
+            $title = "Laporan Tahunan - " . $filter;
+        }
+
+        $result = $query->orderBy('created_at', 'desc')->get();
+
+        // Hitung Total Aset (biar variabel $totalAsset nggak undefined)
+        // Karena ini report transaksi, kita set 0 atau itung dari modal Product
+        $totalAsset = \App\Models\Product::sum(DB::raw('stock * price'));
+
+        $pdf = Pdf::loadView('pdf.reports', [
+            'data' => $result,      // Ini buat @forelse($data as $index => $p)
+            'products' => $result,      // Ini buat jaga-jaga kalau lu pake nama $products
+            'title' => $title,
+            'date' => $filter,
+            'totalAsset' => $totalAsset   // Ini biar footer tabel nggak error
+        ]);
+
+        $safeFileName = str_replace(['/', '\\'], '-', $title);
+        return $pdf->download($safeFileName . ".pdf");
     }
-
-    $data = $query->latest()->get();
-
-    $pdf = Pdf::loadView('pdf.reports', [
-        'data' => $data,
-        'title' => $title,
-        'date' => Carbon::now()->format('d M Y')
-    ]);
-
-    return $pdf->download('Laporan_InvenTrack_' . now()->format('YmdHis') . '.pdf');
-}
 }
