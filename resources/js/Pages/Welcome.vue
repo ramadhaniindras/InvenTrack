@@ -159,7 +159,7 @@ defineProps({
     canRegister: Boolean,
 });
 
-// State for Dialogs
+
 const showHelp = ref(false);
 const showPrivacy = ref(false);
 
@@ -193,13 +193,12 @@ const features = [
 </script>
 
 <style scoped>
-/* Core Utilities */
 .blur-backdrop { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
 .leading-relaxed { line-height: 1.8 !important; }
 .tracking-tighter { letter-spacing: -1px !important; }
 .cursor-pointer { cursor: pointer; }
 
-/* Hero Section Styles */
+
 .hero-section {
     height: 85vh;
     min-height: 600px;
@@ -232,7 +231,6 @@ const features = [
 }
 .text-primary-light { color: #5cbbff; }
 
-/* Button & Card Interactions */
 .btn-primary-glow {
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
     box-shadow: 0 10px 25px rgba(24, 103, 192, 0.4) !important;
@@ -253,7 +251,6 @@ const features = [
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06) !important;
 }
 
-/* Footer Links Section */
 .dark-footer-link {
     color: #bdbdbd;
     text-decoration: none;

@@ -43,7 +43,7 @@
                             <v-chip :color="item.stock <= item.min_stock ? 'error' : 'success'" size="small" variant="flat" class="font-weight-bold">
                                 {{ item.stock }}
                             </v-chip>
-                            <v-btn icon="mdi-qrcode" variant="text" color="purple" size="small" @click="printQrCode(item.id)" title="Cetak QR Code"></v-btn>
+                            <v-btn icon="mdi-qrcode" variant="text" color="purple-lighten-1" size="small" @click="printQrCode(item.id)" title="Cetak QR Code"></v-btn>
                         </div>
                     </template>
 
@@ -53,14 +53,23 @@
 
                     <template v-slot:item.actions="{ item }">
                         <div class="d-flex align-center justify-end ga-1">
-                            <v-btn icon="mdi-arrow-up-bold" variant="text" color="success" size="small" @click="openStockDialog(item, 'in')" title="Stok Masuk"></v-btn>
-                            <v-btn icon="mdi-arrow-down-bold" variant="text" color="orange" size="small" @click="openStockDialog(item, 'out')" title="Stok Keluar"></v-btn>
-                            <v-divider vertical inset class="mx-2"></v-divider>
-                            <template v-if="$page.props.auth.user.role === 'admin'">
-                                <v-btn icon="mdi-swap-vertical" size="x-small" color="orange-darken-2" variant="text" @click="openAdjustDialog(item)" title="Sesuaikan Stok"></v-btn>
-                                <v-btn icon="mdi-pencil" variant="text" color="blue" size="small" @click="editItem(item)" title="Edit"></v-btn>
-                                <v-btn icon="mdi-delete" variant="text" color="red" size="small" @click="deleteItem(item.id)" title="Hapus"></v-btn>
-                            </template>
+                            <v-btn icon="mdi-arrow-up-bold-circle-outline" variant="text" color="success" size="small" @click="openStockDialog(item, 'in')" title="Stok Masuk"></v-btn>
+                            <v-btn icon="mdi-arrow-down-bold-circle-outline" variant="text" color="orange" size="small" @click="openStockDialog(item, 'out')" title="Stok Keluar"></v-btn>
+                            
+                            <v-menu transition="scale-transition">
+                                <template v-slot:activator="{ props }">
+                                    <v-btn icon="mdi-dots-vertical" variant="text" color="grey-darken-1" size="small" v-bind="props"></v-btn>
+                                </template>
+                                <v-list rounded="lg" density="comfortable" class="border shadow-sm">
+                                    <template v-if="$page.props.auth.user.role === 'admin'">
+                                        <v-list-item prepend-icon="mdi-swap-vertical" title="Sesuaikan Stok" @click="openAdjustDialog(item)"></v-list-item>
+                                        <v-list-item prepend-icon="mdi-pencil-outline" title="Edit Barang" color="blue" @click="editItem(item)"></v-list-item>
+                                        <v-divider></v-divider>
+                                        <v-list-item prepend-icon="mdi-delete-outline" title="Hapus Barang" color="red" @click="deleteItem(item.id)"></v-list-item>
+                                    </template>
+                                    <v-list-item v-else prepend-icon="mdi-information-outline" title="Detail Info"></v-list-item>
+                                </v-list>
+                            </v-menu>
                         </div>
                     </template>
                 </v-data-table>
@@ -76,7 +85,6 @@
                     </v-card-title>
                     <v-card-text class="pt-6">
                         <div v-show="!scannedProduct" id="reader" style="width: 100%"></div>
-
                         <v-expand-transition>
                             <div v-if="scannedProduct" class="text-center pa-4">
                                 <v-avatar size="100" rounded="lg" class="border mb-4">
@@ -197,11 +205,9 @@ const props = defineProps({
     filters: Object,
 });
 
-
 const scannerDialog = ref(false);
 const scannedProduct = ref(null);
 let html5QrcodeScanner = null;
-
 
 const dialog = ref(false);
 const stockDialog = ref(false);
@@ -237,7 +243,6 @@ const stockForm = useForm({
 
 const adjustForm = useForm({ product_id: null, actual_stock: 0, reason: "" });
 
-
 const formatCurrency = (val) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(val);
 
 const handleImageChange = (e) => {
@@ -255,7 +260,6 @@ const clearImage = () => {
     imagePreview.value = null;
     imageFile.value = null;
 };
-
 
 const openDialog = () => {
     isEditing.value = false;
@@ -300,7 +304,6 @@ const deleteItem = (id) => {
     });
 };
 
-
 const openStockDialog = (item, type) => {
     stockForm.reset();
     stockForm.product_id = item.id;
@@ -328,7 +331,6 @@ const openAdjustDialog = (product) => {
 const submitAdjust = () => {
     adjustForm.post(route("stock.adjust"), { onSuccess: () => adjustDialog.value = false });
 };
-
 
 const printQrCode = (id) => window.open(route("products.qr", id), "_blank");
 
@@ -379,3 +381,15 @@ onBeforeUnmount(() => {
     if (html5QrcodeScanner) html5QrcodeScanner.clear();
 });
 </script>
+
+<style scoped>
+.v-data-table :deep(thead th) {
+    font-weight: 700 !important;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    color: #616161;
+}
+.shadow-sm {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
+}
+</style>
