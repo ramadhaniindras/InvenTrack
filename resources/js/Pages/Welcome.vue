@@ -16,14 +16,7 @@
             <v-spacer></v-spacer>
 
             <div v-if="canLogin" class="d-none d-sm-flex align-center ga-5">
-                <v-btn 
-                    v-if="$page.props.auth.user" 
-                    @click="$inertia.visit(route('dashboard'))" 
-                    variant="flat" 
-                    color="primary" 
-                    rounded="lg" 
-                    class="px-6 font-weight-bold text-none"
-                >
+                <v-btn v-if="$page.props.auth.user" @click="$inertia.visit(route('dashboard'))" variant="flat" color="primary" rounded="lg" class="px-6 font-weight-bold text-none">
                     Dashboard
                 </v-btn>
                 <template v-else>
@@ -64,7 +57,7 @@
                                         <v-btn size="x-large" color="primary" variant="flat" rounded="xl" class="px-12 font-weight-black text-none btn-primary-glow" @click="$inertia.visit(route('login'))">
                                             Mulai Sekarang
                                         </v-btn>
-                                        <v-btn size="x-large" variant="outlined" color="white" rounded="xl" class="px-10 font-weight-bold text-none border-2">
+                                        <v-btn size="x-large" variant="outlined" color="white" rounded="xl" class="px-10 font-weight-bold text-none border-2" @click="scrollToFeatures">
                                             Pelajari Fitur
                                         </v-btn>
                                     </div>
@@ -75,7 +68,7 @@
                 </v-container>
             </section>
 
-            <v-container class="py-16">
+            <v-container id="features-section" class="py-16">
                 <v-row justify="center">
                     <v-col v-for="(feature, i) in features" :key="i" cols="12" md="4">
                         <v-card flat class="pa-10 feature-card-minimal h-100 rounded-xl text-center">
@@ -108,8 +101,8 @@
                     <v-col cols="12" md="6" class="text-center text-md-right">
                         <div class="d-flex justify-center justify-md-end ga-6 mb-4">
                             <a @click="$inertia.visit(route('login'))" class="dark-footer-link">Masuk Admin</a>
-                            <a href="#" class="dark-footer-link">Kebijakan Privasi</a>
-                            <a href="#" class="dark-footer-link">Bantuan</a>
+                            <a @click="showPrivacy = true" class="dark-footer-link">Kebijakan Privasi</a>
+                            <a @click="showHelp = true" class="dark-footer-link">Bantuan</a>
                         </div>
                         <div class="text-caption text-grey-lighten-1">
                             &copy; 2026 <strong>InvenTrack</strong>. All Rights Reserved.
@@ -118,14 +111,67 @@
                 </v-row>
             </v-container>
         </v-footer>
+
+        <v-dialog v-model="showHelp" max-width="500">
+            <v-card rounded="xl" class="pa-4 border shadow-xl">
+                <v-card-title class="font-weight-bold d-flex align-center text-grey-darken-4 pt-4 px-6">
+                    <v-icon icon="mdi-help-circle" color="primary" class="me-3" size="32"></v-icon>
+                    Pusat Bantuan
+                </v-card-title>
+                <v-card-text class="text-body-1 text-grey-darken-1 px-6 pb-6 mt-2">
+                    Jika Anda mengalami kendala teknis atau lupa akses akun pada sistem <strong>InvenTrack</strong>, silakan hubungi tim Administrator:
+                    <v-list density="comfortable" class="mt-6 bg-grey-lighten-4 rounded-xl border">
+                        <v-list-item prepend-icon="mdi-whatsapp" title="WhatsApp Support" subtitle="+62" color="success" class="mb-2"></v-list-item>
+                        <v-list-item prepend-icon="mdi-email-outline" title="Email IT Support" subtitle="it@inventrack.com" color="primary"></v-list-item>
+                    </v-list>
+                </v-card-text>
+                <v-card-actions class="px-6 pb-4">
+                    <v-spacer></v-spacer>
+                    <v-btn variant="tonal" color="grey-darken-1" rounded="lg" @click="showHelp = false" class="text-none px-6">Tutup</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+
+        <v-dialog v-model="showPrivacy" max-width="600">
+            <v-card rounded="xl" class="pa-4 border shadow-xl">
+                <v-card-title class="font-weight-bold text-grey-darken-4 pt-4 px-6">Kebijakan Privasi</v-card-title>
+                <v-card-text class="text-body-2 text-grey-darken-1 leading-relaxed px-6 pb-6">
+                    <p class="mb-4">Sistem <strong>InvenTrack</strong> berkomitmen menjaga kerahasiaan data operasional gudang dan bengkel Anda.</p>
+                    <p class="mb-4"><strong>Data Collection:</strong> Kami mencatat Nama, Email, dan Log Aktivitas mutasi stok untuk keperluan audit internal perusahaan saja.</p>
+                    <p class="mb-4"><strong>Keamanan:</strong> Seluruh data disimpan dalam server dengan enkripsi standar industri dan tidak akan dibagikan kepada pihak ketiga.</p>
+                    <p><strong>Akses:</strong> Hanya pengguna dengan level Administrator yang berwenang mengakses laporan lengkap dan log audit.</p>
+                </v-card-text>
+                <v-card-actions class="px-6 pb-4">
+                    <v-spacer></v-spacer>
+                    <v-btn color="primary" variant="flat" rounded="lg" @click="showPrivacy = false" class="text-none px-8">Saya Mengerti</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+
     </v-app>
 </template>
 
 <script setup>
+import { ref } from 'vue';
+
 defineProps({
     canLogin: Boolean,
     canRegister: Boolean,
 });
+
+// State for Dialogs
+const showHelp = ref(false);
+const showPrivacy = ref(false);
+
+const scrollToFeatures = () => {
+    const element = document.getElementById('features-section');
+    if (element) {
+        element.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+        });
+    }
+}
 
 const features = [
     {
@@ -149,7 +195,7 @@ const features = [
 <style scoped>
 /* Core Utilities */
 .blur-backdrop { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
-.leading-relaxed { line-height: 1.7 !important; }
+.leading-relaxed { line-height: 1.8 !important; }
 .tracking-tighter { letter-spacing: -1px !important; }
 .cursor-pointer { cursor: pointer; }
 
@@ -159,60 +205,49 @@ const features = [
     min-height: 600px;
     overflow: hidden;
 }
-
 .hero-bg-wrapper {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
     z-index: 1;
 }
-
 .hero-img {
     height: 100%;
     width: 100%;
     filter: brightness(0.6) contrast(1.1);
 }
-
 .hero-gradient-overlay {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
     background: linear-gradient(135deg, rgba(18, 25, 35, 0.8) 0%, rgba(18, 25, 35, 0.4) 100%);
 }
-
 .glass-content {
     background: rgba(255, 255, 255, 0.03);
     backdrop-filter: blur(4px);
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
-
 .display-title {
     font-size: clamp(2.5rem, 6vw, 4.5rem);
     letter-spacing: -2px !important;
     text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
-
-.text-primary-light {
-    color: #5cbbff;
-}
+.text-primary-light { color: #5cbbff; }
 
 /* Button & Card Interactions */
 .btn-primary-glow {
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
     box-shadow: 0 10px 25px rgba(24, 103, 192, 0.4) !important;
 }
-
 .btn-primary-glow:hover {
     transform: translateY(-4px);
     box-shadow: 0 15px 35px rgba(24, 103, 192, 0.6) !important;
     background-color: #1e88e5 !important;
 }
-
 .border-2 { border-width: 2px !important; }
 
 .feature-card-minimal {
     transition: all 0.4s ease;
     background: #ffffff;
 }
-
 .feature-card-minimal:hover {
     transform: translateY(-8px);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06) !important;
@@ -220,17 +255,13 @@ const features = [
 
 /* Footer Links Section */
 .dark-footer-link {
-    color: #BDBDBD;
+    color: #bdbdbd;
     text-decoration: none;
     font-size: 0.85rem;
     font-weight: 600;
     transition: all 0.2s ease;
     cursor: pointer;
 }
-
-.dark-footer-link:hover {
-    color: #5cbbff;
-}
-
+.dark-footer-link:hover { color: #5cbbff; }
 .max-width-700 { max-width: 700px; }
 </style>
