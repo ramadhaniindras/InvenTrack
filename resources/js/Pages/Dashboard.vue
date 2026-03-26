@@ -1,166 +1,402 @@
 <template>
     <AuthenticatedLayout>
-        <v-container fluid class="pa-8 bg-grey-lighten-4">
-            <v-row class="mb-4 align-center">
-                <v-col cols="12" md="7">
-                    <h1 class="text-h4 font-weight-bold text-grey-darken-3">InvenTrack Dashboard</h1>
-                    <p class="text-subtitle-1 text-grey">Selamat datang kembali!</p>
-                </v-col>
-                
-                <v-col cols="12" md="3">
-                    <v-select
-                        v-model="filterForm.month"
-                        label="Bulan"
-                        :items="months"
-                        item-title="name"
-                        item-value="value"
-                        variant="outlined"
-                        density="compact"
-                        hide-details
-                        @update:model-value="applyFilter"
-                        class="bg-white"
-                    ></v-select>
-                </v-col>
-                
-                <v-col cols="12" md="2">
-                    <v-select
-                        v-model="filterForm.year"
-                        label="Tahun"
-                        :items="years"
-                        variant="outlined"
-                        density="compact"
-                        hide-details
-                        @update:model-value="applyFilter"
-                        class="bg-white"
-                    ></v-select>
+        <v-container fluid class="pa-4 pa-md-8 bg-grey-lighten-4">
+            <v-card
+                variant="flat"
+                rounded="xl"
+                class="mb-8 pa-4 border-sm shadow-sm bg-white"
+            >
+                <v-row align="center">
+                    <v-col cols="12" md="6">
+                        <div class="d-flex align-center">
+                            <v-avatar
+                                color="primary-lighten-5"
+                                size="48"
+                                class="me-4"
+                                rounded="lg"
+                            >
+                                <v-icon color="primary" size="28"
+                                    >mdi-view-dashboard-outline</v-icon
+                                >
+                            </v-avatar>
+                            <div>
+                                <h1
+                                    class="text-h5 font-weight-black text-grey-darken-4"
+                                >
+                                    InvenTrack Dashboard
+                                </h1>
+                                <p
+                                    class="text-caption text-grey-darken-1 font-weight-medium"
+                                >
+                                    {{
+                                        new Date().toLocaleDateString("id-ID", {
+                                            weekday: "long",
+                                            year: "numeric",
+                                            month: "long",
+                                            day: "numeric",
+                                        })
+                                    }}
+                                </p>
+                            </div>
+                        </div>
+                    </v-col>
+                    <v-col cols="12" md="6">
+                        <div class="d-flex ga-2 justify-md-end">
+                            <v-select
+                                v-model="filterForm.month"
+                                :items="months"
+                                item-title="name"
+                                item-value="value"
+                                label="Bulan"
+                                variant="outlined"
+                                density="compact"
+                                hide-details
+                                rounded="lg"
+                                style="max-width: 160px"
+                                @update:model-value="applyFilter"
+                            ></v-select>
+                            <v-select
+                                v-model="filterForm.year"
+                                :items="years"
+                                label="Tahun"
+                                variant="outlined"
+                                density="compact"
+                                hide-details
+                                rounded="lg"
+                                style="max-width: 120px"
+                                @update:model-value="applyFilter"
+                            ></v-select>
+                        </div>
+                    </v-col>
+                </v-row>
+            </v-card>
+
+            <v-row class="mb-8">
+                <v-col
+                    v-for="(stat, i) in statCards"
+                    :key="i"
+                    cols="12"
+                    sm="6"
+                    md="3"
+                >
+                    <v-card
+                        elevation="0"
+                        rounded="xl"
+                        class="pa-5 border-sm stat-card fill-height bg-white"
+                        :style="`border-left: 5px solid ${stat.realColor} !important`"
+                    >
+                        <div class="d-flex justify-space-between align-center">
+                            <div>
+                                <div
+                                    class="text-overline text-grey-darken-1 font-weight-bold mb-1"
+                                >
+                                    {{ stat.title }}
+                                </div>
+                                <div
+                                    class="text-h4 font-weight-black mb-1 text-grey-darken-4"
+                                >
+                                    {{ stat.value }}
+                                </div>
+                            </div>
+                            <v-avatar rounded="xl" size="56">
+                                <v-icon :color="stat.color" size="32">{{
+                                    stat.icon
+                                }}</v-icon>
+                            </v-avatar>
+                        </div>
+                    </v-card>
                 </v-col>
             </v-row>
 
             <v-row>
-                <v-col cols="12" md="4">
-                    <v-card elevation="1" rounded="xl" class="pa-4 border-sm fill-height">
-                        <v-list-item
-                            prepend-icon="mdi-package-variant"
-                            title="Total Produk"
-                            :subtitle="stats.total_products + ' Item'"
-                        ></v-list-item>
-                    </v-card>
-                </v-col>
-
-                <v-col cols="12" md="4">
-                    <v-card elevation="1" rounded="xl" class="pa-4 border-sm fill-height" color="error" variant="tonal">
-                        <v-list-item
-                            prepend-icon="mdi-alert-circle"
-                            title="Stok Kritis"
-                            :subtitle="stats.low_stock_count + ' Produk Perlu Re-stock'"
-                        ></v-list-item>
-                    </v-card>
-                </v-col>
-
-                <v-col cols="12" md="4">
-                    <v-card elevation="1" rounded="xl" class="pa-4 border-sm fill-height" color="success" variant="tonal">
-                        <v-list-item
-                            prepend-icon="mdi-cash-multiple"
-                            title="Estimasi Nilai Aset"
-                            :subtitle="formatIDR(stats.total_asset_value)"
-                        ></v-list-item>
-                    </v-card>
-                </v-col>
-            </v-row>
-
-            <v-row class="mt-4">
                 <v-col cols="12" md="8">
-                    <v-card elevation="1" rounded="xl" class="pa-6 border-sm fill-height">
-                        <div class="mb-4">
-                            <h3 class="text-h6 font-weight-bold">Trend Pergerakan Barang</h3>
-                            <p class="text-caption text-grey">Data aktivitas harian dalam bulan terpilih</p>
+                    <v-card
+                        elevation="0"
+                        rounded="xl"
+                        class="border-sm pa-6 fill-height bg-white"
+                    >
+                        <div
+                            class="d-flex justify-space-between align-center mb-8"
+                        >
+                            <div>
+                                <h3 class="text-h6 font-weight-black">
+                                    Trend Masuk vs Keluar
+                                </h3>
+                                <p class="text-caption text-grey">
+                                    Data harian pergerakan stok bengkel
+                                </p>
+                            </div>
+                            <div class="d-flex ga-2">
+                                <v-badge
+                                    dot
+                                    color="success"
+                                    inline
+                                    label="Masuk"
+                                ></v-badge>
+                                <v-badge
+                                    dot
+                                    color="error"
+                                    inline
+                                    label="Keluar"
+                                ></v-badge>
+                            </div>
                         </div>
-                        <div style="height: 350px">
-                            <Bar :data="chartConfig" :options="chartOptions" />
+                        <div style="height: 380px">
+                            <Line :data="chartConfig" :options="chartOptions" />
                         </div>
                     </v-card>
                 </v-col>
 
                 <v-col cols="12" md="4">
-                    <v-card elevation="1" rounded="xl" class="pa-6 border-sm fill-height">
-                        <h3 class="text-h6 font-weight-bold mb-4">5 Barang Terlaris</h3>
-                        <v-list class="px-0">
-                            <div v-for="(item, index) in topProducts" :key="index" class="mb-4">
-                                <div class="d-flex justify-space-between mb-1">
-                                    <span class="font-weight-medium text-truncate" style="max-width: 150px;">{{ item.name }}</span>
-                                    <span class="text-primary font-weight-bold">{{ item.total }} Pcs</span>
+                    <v-card
+                        elevation="0"
+                        rounded="xl"
+                        class="border-sm pa-6 fill-height bg-white"
+                    >
+                        <h3
+                            class="text-h6 font-weight-black mb-6 d-flex align-center"
+                        >
+                            <v-icon color="orange-darken-2" class="me-2"
+                                >mdi-fire</v-icon
+                            >
+                            Best Sellers
+                        </h3>
+                        <div v-if="topProducts && topProducts.length > 0">
+                            <v-hover
+                                v-for="(item, index) in topProducts"
+                                :key="index"
+                                v-slot="{ isHovering, props }"
+                            >
+                                <div
+                                    v-bind="props"
+                                    class="mb-6 px-2 pt-2 pb-1 rounded-lg transition-all"
+                                    :class="
+                                        isHovering ? 'bg-grey-lighten-4' : ''
+                                    "
+                                >
+                                    <div
+                                        class="d-flex justify-space-between align-center mb-2"
+                                    >
+                                        <span
+                                            class="text-subtitle-2 font-weight-bold text-grey-darken-3"
+                                            >{{ item.name }}</span
+                                        >
+                                        <v-chip
+                                            size="x-small"
+                                            color="primary"
+                                            variant="flat"
+                                            class="font-weight-black"
+                                            >{{ item.total }} Pcs</v-chip
+                                        >
+                                    </div>
+                                    <v-progress-linear
+                                        :model-value="
+                                            calculatePercent(item.total)
+                                        "
+                                        color="primary"
+                                        height="8"
+                                        rounded
+                                        buffer-value="100"
+                                    ></v-progress-linear>
                                 </div>
-                                <v-progress-linear
-                                    :model-value="calculatePercent(item.total)"
-                                    color="primary"
-                                    height="10"
-                                    rounded
-                                    striped
-                                ></v-progress-linear>
-                            </div>
-                            <div v-if="topProducts.length === 0" class="text-center text-grey py-4">
-                                Belum ada data keluar.
-                            </div>
-                        </v-list>
+                            </v-hover>
+                        </div>
+                        <div
+                            v-else
+                            class="text-center py-10 fill-height d-flex flex-column align-center justify-center"
+                        >
+                            <v-icon size="64" color="grey-lighten-2"
+                                >mdi-chart-line-variant</v-icon
+                            >
+                            <p class="text-grey mt-2">Belum ada data</p>
+                        </div>
                     </v-card>
                 </v-col>
             </v-row>
 
-            <v-row class="mt-4">
-                <v-col cols="12" md="4">
-                    <v-card elevation="1" rounded="xl" class="border-sm fill-height">
-                        <v-card-title class="pa-4 font-weight-bold text-error d-flex align-center">
-                            <v-icon icon="mdi-alert-decagram" class="me-2"></v-icon>
-                            Stok Menipis
-                        </v-card-title>
-                        <v-divider></v-divider>
-                        <v-list lines="two" style="max-height: 350px; overflow-y: auto">
+            <v-row class="mt-6">
+                <v-col cols="12" md="5">
+                    <v-card
+                        elevation="0"
+                        rounded="xl"
+                        class="border-sm bg-white fill-height overflow-hidden"
+                    >
+                        <v-toolbar color="white" flat class="px-4 border-b-sm">
+                            <v-icon color="error" class="me-2"
+                                >mdi-alert-circle-outline</v-icon
+                            >
+                            <v-toolbar-title
+                                class="text-subtitle-1 font-weight-black"
+                                >Rekomendasi Order!</v-toolbar-title
+                            >
+                            <v-btn
+                                icon="mdi-truck-fast-outline"
+                                variant="tonal"
+                                color="primary"
+                                size="small"
+                                rounded="lg"
+                                @click="router.visit('/suppliers')"
+                            ></v-btn>
+                        </v-toolbar>
+                        <v-list lines="two" class="pa-0">
                             <v-list-item
                                 v-for="item in stats.low_stock_list"
                                 :key="item.id"
-                                :title="item.name"
-                                :subtitle="'Sisa: ' + item.stock + ' Pcs'"
+                                class="px-6 py-3 border-b-sm list-hover"
                             >
+                                <template v-slot:prepend>
+                                    <v-avatar
+                                        color="red-lighten-5"
+                                        rounded="lg"
+                                        size="48"
+                                    >
+                                        <span
+                                            class="text-error text-h6 font-weight-black"
+                                            >{{ item.stock }}</span
+                                        >
+                                    </v-avatar>
+                                </template>
+                                <v-list-item-title
+                                    class="font-weight-bold text-body-1"
+                                    >{{ item.name }}</v-list-item-title
+                                >
+                                <v-list-item-subtitle
+                                    class="text-grey-darken-1 font-weight-medium"
+                                >
+                                    Supplier:
+                                    {{ item.supplier?.name || "Tentukan!" }}
+                                </v-list-item-subtitle>
                                 <template v-slot:append>
-                                    <v-btn icon="mdi-plus" size="x-small" color="primary" variant="flat" @click="router.visit('/products')"></v-btn>
+                                    <v-btn
+                                        icon="mdi-chevron-right"
+                                        variant="text"
+                                        size="small"
+                                        color="grey"
+                                        @click="router.visit('/products')"
+                                    ></v-btn>
                                 </template>
                             </v-list-item>
-                            <v-list-item v-if="stats.low_stock_list.length === 0" class="text-center text-grey py-4">
-                                Stok masih aman terkendali!
-                            </v-list-item>
+                            <div
+                                v-if="
+                                    !stats.low_stock_list ||
+                                    stats.low_stock_list.length === 0
+                                "
+                                class="text-center py-10 px-4 fill-height d-flex flex-column align-center justify-center"
+                            >
+                                <v-icon size="48" color="success"
+                                    >mdi-check-decagram</v-icon
+                                >
+                                <p
+                                    class="text-grey-darken-1 font-weight-bold mt-2"
+                                >
+                                    Stok aman terkendali!
+                                </p>
+                            </div>
                         </v-list>
                     </v-card>
                 </v-col>
 
-                <v-col cols="12" md="8">
-                    <v-card elevation="1" rounded="xl" class="border-sm fill-height">
-                        <v-card-title class="pa-4 font-weight-bold d-flex justify-space-between align-center">
-                            History Terakhir
-                            <v-btn variant="text" color="primary" @click="router.visit('/history')">Lihat Semua</v-btn>
-                        </v-card-title>
-                        <v-divider></v-divider>
-                        <v-table density="comfortable">
+                <v-col cols="12" md="7">
+                    <v-card
+                        elevation="0"
+                        rounded="xl"
+                        class="border-sm bg-white fill-height"
+                    >
+                        <v-toolbar color="white" flat class="px-4 border-b-sm">
+                            <v-icon color="indigo" class="me-2"
+                                >mdi-history</v-icon
+                            >
+                            <v-toolbar-title
+                                class="text-subtitle-1 font-weight-black"
+                                >Aktivitas Terakhir</v-toolbar-title
+                            >
+                            <v-btn
+                                variant="text"
+                                size="small"
+                                color="primary"
+                                class="font-weight-bold px-4"
+                                @click="router.visit('/history')"
+                                >Lihat Semua</v-btn
+                            >
+                        </v-toolbar>
+                        <v-table
+                            density="comfortable"
+                            class="px-4 bg-transparent"
+                        >
                             <thead>
-                                <tr>
-                                    <th class="text-left font-weight-bold">Produk</th>
-                                    <th class="text-center font-weight-bold">Tipe</th>
-                                    <th class="text-center font-weight-bold">Jumlah</th>
-                                    <th class="text-right font-weight-bold">Waktu</th>
+                                <tr class="text-uppercase">
+                                    <th
+                                        class="text-caption font-weight-black text-grey"
+                                    >
+                                        Barang
+                                    </th>
+                                    <th
+                                        class="text-center text-caption font-weight-black text-grey"
+                                    >
+                                        Aksi
+                                    </th>
+                                    <th
+                                        class="text-center text-caption font-weight-black text-grey"
+                                    >
+                                        Qty
+                                    </th>
+                                    <th
+                                        class="text-right text-caption font-weight-black text-grey"
+                                    >
+                                        Waktu
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="log in stats.recent_movements" :key="log.id">
-                                    <td>{{ log.product?.name || "Produk dihapus" }}</td>
+                                <tr
+                                    v-for="log in stats.recent_movements"
+                                    :key="log.id"
+                                >
+                                    <td class="font-weight-bold text-body-2">
+                                        {{ log.product?.name }}
+                                    </td>
                                     <td class="text-center">
-                                        <v-chip :color="log.type === 'in' ? 'success' : 'orange'" size="x-small" variant="flat">
-                                            {{ log.type === "in" ? "MASUK" : "KELUAR" }}
+                                        <v-chip
+                                            :color="
+                                                log.type === 'in'
+                                                    ? 'success'
+                                                    : 'orange-darken-2'
+                                            "
+                                            size="x-small"
+                                            class="font-weight-black px-3"
+                                            variant="flat"
+                                        >
+                                            {{
+                                                log.type === "in"
+                                                    ? "MASUK"
+                                                    : "KELUAR"
+                                            }}
                                         </v-chip>
                                     </td>
-                                    <td :class="log.type === 'in' ? 'text-success' : 'text-error'" class="text-center font-weight-bold">
-                                        {{ log.type === "in" ? "+" : "-" }}{{ log.quantity }}
+                                    <td class="text-center">
+                                        <span
+                                            :class="
+                                                log.type === 'in'
+                                                    ? 'text-success'
+                                                    : 'text-error'
+                                            "
+                                            class="font-weight-black"
+                                        >
+                                            {{ log.type === "in" ? "+" : "-" }}
+                                            {{ log.quantity }}
+                                        </span>
                                     </td>
-                                    <td class="text-right text-caption text-grey">
-                                        {{ new Date(log.created_at).toLocaleString("id-ID") }}
+                                    <td
+                                        class="text-right text-caption text-grey-darken-1"
+                                    >
+                                        {{
+                                            new Date(
+                                                log.created_at,
+                                            ).toLocaleTimeString("id-ID", {
+                                                hour: "2-digit",
+                                                minute: "2-digit",
+                                            })
+                                        }}
                                     </td>
                                 </tr>
                             </tbody>
@@ -174,20 +410,31 @@
 
 <script setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { Head, router } from "@inertiajs/vue3";
-import { Bar } from "vue-chartjs";
+import { router } from "@inertiajs/vue3";
+import { Line } from "vue-chartjs";
 import {
     Chart as ChartJS,
     Title,
     Tooltip,
     Legend,
-    BarElement,
+    LineElement,
+    PointElement,
     CategoryScale,
     LinearScale,
+    Filler,
 } from "chart.js";
-import { computed, ref } from "vue"; // REF HARUS DI-IMPORT BRO!
+import { computed, ref } from "vue";
 
-ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
+ChartJS.register(
+    Title,
+    Tooltip,
+    Legend,
+    LineElement,
+    PointElement,
+    CategoryScale,
+    LinearScale,
+    Filler,
+);
 
 const props = defineProps({
     stats: Object,
@@ -196,34 +443,78 @@ const props = defineProps({
     filters: Object,
 });
 
-const calculatePercent = (val) => {
-    const max = props.topProducts[0]?.total || 100;
-    return (val / max) * 100;
-};
-
 const formatIDR = (val) => {
-    if (!val) return "Rp 0";
     return new Intl.NumberFormat("id-ID", {
         style: "currency",
         currency: "IDR",
         minimumFractionDigits: 0,
-    }).format(val);
+    }).format(val || 0);
+};
+
+// Fixed logic for stat cards to prevent "undefined" errors
+const statCards = computed(() => {
+    if (!props.stats) return [];
+    return [
+        {
+            title: "Total Produk",
+            value: props.stats.total_products || 0,
+            icon: "mdi-package-variant-closed",
+            color: "indigo",
+            realColor: "#3F51B5",
+        },
+        {
+            title: "Supplier",
+            value: props.stats.total_suppliers || 0,
+            icon: "mdi-truck-delivery-outline",
+            color: "primary",
+            realColor: "#2196F3",
+        },
+        {
+            title: "Stok Kritis",
+            value: props.stats.low_stock_count || 0,
+            icon: "mdi-alert-circle-outline",
+            color: "error",
+            realColor: "#F44336",
+        },
+        {
+            title: "Nilai Aset",
+            value: formatIDR(props.stats.total_asset_value),
+            icon: "mdi-cash-multiple",
+            color: "success",
+            realColor: "#4CAF50",
+        },
+    ];
+});
+
+const calculatePercent = (val) => {
+    const max = props.topProducts?.[0]?.total || 100;
+    return (val / max) * 100;
 };
 
 const chartConfig = computed(() => ({
     labels: props.chartData?.labels || [],
     datasets: [
         {
-            label: "Masuk",
-            backgroundColor: "#4CAF50",
+            label: "Barang Masuk",
+            borderColor: "#4CAF50",
+            backgroundColor: "rgba(76, 175, 80, 0.1)",
             data: props.chartData?.in || [],
-            borderRadius: 6,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 4,
+            pointBackgroundColor: "#4CAF50",
+            borderWidth: 3,
         },
         {
-            label: "Keluar",
-            backgroundColor: "#F44336",
+            label: "Barang Keluar",
+            borderColor: "#F44336",
+            backgroundColor: "rgba(244, 67, 54, 0.1)",
             data: props.chartData?.out || [],
-            borderRadius: 6,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 4,
+            pointBackgroundColor: "#F44336",
+            borderWidth: 3,
         },
     ],
 }));
@@ -231,28 +522,55 @@ const chartConfig = computed(() => ({
 const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
+    interaction: { mode: "index", intersect: false },
     plugins: {
-        legend: { position: "bottom" },
+        legend: {
+            position: "top",
+            align: "end",
+            labels: {
+                usePointStyle: true,
+                boxWidth: 8,
+                font: { size: 12, weight: "bold" },
+            },
+        },
+        tooltip: {
+            backgroundColor: "rgba(255, 255, 255, 0.9)",
+            titleColor: "#333",
+            bodyColor: "#666",
+            borderColor: "#ddd",
+            borderWidth: 1,
+            padding: 12,
+            displayColors: true,
+        },
     },
     scales: {
-        y: { beginAtZero: true, grid: { color: "#f0f0f0" } },
+        y: {
+            beginAtZero: true,
+            grid: { borderDash: [5, 5], color: "#e0e0e0", drawBorder: false },
+            ticks: { stepSize: 5 },
+        },
         x: { grid: { display: false } },
     },
 };
 
-// Setup state filter dari props backend
 const filterForm = ref({
-    month: props.filters.month,
-    year: props.filters.year,
+    month: props.filters?.month || new Date().getMonth() + 1,
+    year: props.filters?.year || new Date().getFullYear(),
 });
 
 const months = [
-    { name: "Januari", value: 1 }, { name: "Februari", value: 2 },
-    { name: "Maret", value: 3 }, { name: "April", value: 4 },
-    { name: "Mei", value: 5 }, { name: "Juni", value: 6 },
-    { name: "Juli", value: 7 }, { name: "Agustus", value: 8 },
-    { name: "September", value: 9 }, { name: "Oktober", value: 10 },
-    { name: "November", value: 11 }, { name: "Desember", value: 12 },
+    { name: "Januari", value: 1 },
+    { name: "Februari", value: 2 },
+    { name: "Maret", value: 3 },
+    { name: "April", value: 4 },
+    { name: "Mei", value: 5 },
+    { name: "Juni", value: 6 },
+    { name: "Juli", value: 7 },
+    { name: "Agustus", value: 8 },
+    { name: "September", value: 9 },
+    { name: "Oktober", value: 10 },
+    { name: "November", value: 11 },
+    { name: "Desember", value: 12 },
 ];
 
 const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
@@ -260,11 +578,33 @@ const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
 const applyFilter = () => {
     router.get(
         route("dashboard"),
-        {
-            month: filterForm.value.month,
-            year: filterForm.value.year,
-        },
-        { preserveState: true, preserveScroll: true }
+        { month: filterForm.value.month, year: filterForm.value.year },
+        { preserveState: true, preserveScroll: true },
     );
 };
 </script>
+
+<style scoped>
+.border-sm {
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+.shadow-sm {
+    box-shadow: 0 2px 12px -4px rgba(0, 0, 0, 0.05) !important;
+}
+.stat-card {
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease;
+}
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.1) !important;
+}
+.list-hover:hover {
+    background-color: #f8f9fa;
+    transition: background 0.2s;
+}
+.transition-all {
+    transition: all 0.3s ease;
+}
+</style>

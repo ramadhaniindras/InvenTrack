@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\Supplier;
 use App\Models\StockMovement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -11,9 +12,8 @@ use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
-    public function index(Request $request) 
+    public function index(Request $request)
     {
-
         $month = $request->input('month', Carbon::now()->month);
         $year = $request->input('year', Carbon::now()->year);
 
@@ -60,9 +60,11 @@ class DashboardController extends Controller
 
         $stats = [
             'total_products' => Product::count(),
+            'total_suppliers' => Supplier::count(), 
             'low_stock_count' => Product::whereColumn('stock', '<=', 'min_stock')->count(),
             'total_asset_value' => (int) Product::selectRaw('SUM(stock * price) as total')->value('total') ?? 0,
-            'low_stock_list' => Product::whereColumn('stock', '<=', 'min_stock')
+            'low_stock_list' => Product::with('supplier') 
+                ->whereColumn('stock', '<=', 'min_stock')
                 ->orderBy('stock', 'asc')
                 ->take(5)
                 ->get(),

@@ -32,24 +32,12 @@
                         <v-table hover>
                             <thead>
                                 <tr>
-                                    <th class="text-left font-weight-bold">
-                                        Waktu
-                                    </th>
-                                    <th class="text-left font-weight-bold">
-                                        Produk
-                                    </th>
-                                    <th class="text-left font-weight-bold">
-                                        Tipe
-                                    </th>
-                                    <th class="text-left font-weight-bold">
-                                        Jumlah
-                                    </th>
-                                    <th class="text-left font-weight-bold">
-                                        User
-                                    </th>
-                                    <th class="text-left font-weight-bold">
-                                        Ket.
-                                    </th>
+                                    <th class="text-left font-weight-bold">Waktu</th>
+                                    <th class="text-left font-weight-bold">Produk</th>
+                                    <th class="text-left font-weight-bold">Tipe</th>
+                                    <th class="text-left font-weight-bold">Jumlah</th>
+                                    <th class="text-left font-weight-bold">User</th>
+                                    <th class="text-left font-weight-bold">Ket.</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -65,32 +53,19 @@
                                     </td>
                                     <td>
                                         <v-chip
-                                            :color="
-                                                item.type === 'in'
-                                                    ? 'success'
-                                                    : 'error'
-                                            "
+                                            :color="item.type === 'in' ? 'success' : 'orange-darken-2'"
                                             size="x-small"
                                             class="text-uppercase"
                                             variant="flat"
                                         >
-                                            {{
-                                                item.type === "in"
-                                                    ? "Masuk"
-                                                    : "Keluar"
-                                            }}
+                                            {{ item.type === "in" ? "Masuk" : "Keluar" }}
                                         </v-chip>
                                     </td>
                                     <td
-                                        :class="
-                                            item.type === 'in'
-                                                ? 'text-success'
-                                                : 'text-error'
-                                        "
+                                        :class="item.type === 'in' ? 'text-success' : 'text-error'"
                                         class="font-weight-bold"
                                     >
-                                        {{ item.type === "in" ? "+" : "-"
-                                        }}{{ item.quantity }}
+                                        {{ item.type === "in" ? "+" : "-" }}{{ item.quantity }}
                                     </td>
                                     <td>{{ item.user?.name || "Sistem" }}</td>
                                     <td class="text-caption">
@@ -98,10 +73,7 @@
                                     </td>
                                 </tr>
                                 <tr v-if="history.data.length === 0">
-                                    <td
-                                        colspan="6"
-                                        class="text-center py-10 text-grey"
-                                    >
+                                    <td colspan="6" class="text-center py-10 text-grey">
                                         Data tidak ditemukan bro.
                                     </td>
                                 </tr>
@@ -120,7 +92,7 @@
                                         router.get(
                                             route('history.index'),
                                             { page, search },
-                                            { preserveState: true },
+                                            { preserveState: true }
                                         )
                                 "
                             ></v-pagination>
@@ -145,7 +117,6 @@ const props = defineProps({
 
 const search = ref(props.filters.search);
 
-// Fungsi Search otomatis (pake debounce biar gak berat)
 const doSearch = debounce((value) => {
     router.get(
         route("history.index"),
@@ -161,7 +132,6 @@ watch(search, (value) => {
     doSearch(value);
 });
 
-// Helper buat format tanggal
 const formatDate = (dateString) => {
     return new Date(dateString).toLocaleString("id-ID", {
         day: "2-digit",
