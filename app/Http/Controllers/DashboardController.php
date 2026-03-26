@@ -93,6 +93,9 @@ class DashboardController extends Controller
 
     public function downloadPO(Product $product)
     {
+        if (auth()->user()->role !== 'admin') {
+            abort(403, 'Waduh Bro, lu bukan admin! Gak boleh download PO ya.');
+        }
         $product->load('supplier');
 
         $items = [$product];
@@ -101,7 +104,7 @@ class DashboardController extends Controller
             'date' => now()->format('d M Y'),
             'po_number' => 'PO-' . strtoupper(Str::random(5)),
             'supplier' => $product->supplier,
-            'items' => $items, 
+            'items' => $items,
         ];
 
         $pdf = Pdf::loadView('pdf.purchase_order', $data);

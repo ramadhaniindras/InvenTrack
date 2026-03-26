@@ -221,6 +221,7 @@
                                 >Wajib Order!</v-toolbar-title
                             >
                             <v-btn
+                                v-if="$page.props.auth.user.role === 'admin'"
                                 icon="mdi-truck-fast-outline"
                                 variant="tonal"
                                 color="primary"
@@ -260,6 +261,10 @@
                                 </v-list-item-subtitle>
                                 <template v-slot:append>
                                     <v-btn
+                                        v-if="
+                                            $page.props.auth.user.role ===
+                                            'admin'
+                                        "
                                         icon="mdi-whatsapp"
                                         variant="tonal"
                                         color="success"
@@ -268,6 +273,16 @@
                                         title="Order via WhatsApp"
                                         @click="sendWhatsApp(item)"
                                     ></v-btn>
+                                    <v-chip
+                                        v-else
+                                        color="warning"
+                                        size="x-small"
+                                        variant="tonal"
+                                        class="font-weight-bold"
+                                        prepend-icon="mdi-account-alert-outline"
+                                    >
+                                        Lapor Admin!
+                                    </v-chip>
                                 </template>
                             </v-list-item>
                         </v-list>
@@ -429,7 +444,6 @@ const formatIDR = (val) => {
     }).format(val || 0);
 };
 
-
 const statCards = computed(() => {
     if (!props.stats) return [];
     return [
@@ -476,7 +490,7 @@ const sendWhatsApp = (item) => {
     const downloadUrl = route("po.download", { product: item.id });
     const link = document.createElement("a");
     link.href = downloadUrl;
-    link.setAttribute("download", ""); 
+    link.setAttribute("download", "");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
