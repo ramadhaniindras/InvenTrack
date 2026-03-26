@@ -62,6 +62,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Purchase Orders
     Route::get('/purchase-order/{supplier}', [PurchaseOrderController::class, 'generate'])->name('po.generate');
+    Route::get('/po/download/{product}', [DashboardController::class, 'downloadPO'])->name('po.download');
 });
 
 require __DIR__ . '/auth.php';

@@ -12,23 +12,23 @@ class PurchaseOrderController extends Controller
 {
     public function generate(Supplier $supplier)
     {
-        // Cari barang yang stoknya di bawah limit
-        $items = Product::where('supplier_id', $supplier->id)
+        $items = \App\Models\Product::where('supplier_id', $supplier->id)
             ->whereColumn('stock', '<=', 'min_stock')
             ->get();
 
         if ($items->isEmpty()) {
-            return redirect()->back()->with('error', 'Gak ada barang yang kritis, aman Bro!');
+            return back()->with('error', 'Gak ada barang yang kritis dari supplier ini, Bro!');
         }
 
-        $poNumber = 'PO-' . date('Ymd') . '-' . rand(100, 999);
-
-        $pdf = Pdf::loadView('pdf.purchase_order', [
+        $data = [
+            'date' => now()->format('d M Y'),
+            'po_number' => 'PO-' . strtoupper(\Illuminate\Support\Str::random(5)), // PASTIKAN ADA INI
             'supplier' => $supplier,
             'items' => $items,
-            'poNumber' => $poNumber,
-            'date' => date('d/m/Y'),
-        ]);
-        return $pdf->download("PO-{$supplier->name}-" . date('Ymd') . ".pdf");
+        ];
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.purchase_order', $data);
+
+        return $pdf->download('PO_' . str_replace(' ', '_', $supplier->name) . '.pdf');
     }
 }

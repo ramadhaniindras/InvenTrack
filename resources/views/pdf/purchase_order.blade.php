@@ -23,7 +23,7 @@
         <table width="100%">
             <tr>
                 <td class="title">Purchase Order (PO)</td>
-                <td align="right">No: {{ $poNumber }}<br>Tanggal: {{ $date }}</td>
+                <td align="right">No: {{ $po_number }}<br>Tanggal: {{ $date }}</td>
             </tr>
         </table>
     </div>
@@ -58,15 +58,14 @@
             @php $grandTotal = 0; @endphp
             @foreach($items as $index => $item)
                 @php 
-                    // Rumus Napas Panjang: 2x Limit stok dikurangi stok sekarang
+
                     $idealStock = $item->min_stock * 2; 
                     $qtyOrder = $idealStock - $item->stock;
-                    
-                    // Pastikan order tidak minus (jika stok tiba-tiba masuk tapi PO belum update)
+
                     if($qtyOrder < 0) $qtyOrder = 0;
 
                     $subtotal = $qtyOrder * $item->price;
-                    $grandTotal += $subtotal; // Tambahkan ke Grand Total
+                    $grandTotal += $subtotal; 
                 @endphp
                 <tr>
                     <td class="text-center">{{ $index + 1 }}</td>

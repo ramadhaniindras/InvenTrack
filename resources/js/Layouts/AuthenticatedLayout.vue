@@ -64,10 +64,12 @@
                     rounded="lg"
                 ></v-list-item>
                 <v-list-item
+                    v-if="$page.props.auth.user.role === 'admin'"
                     prepend-icon="mdi-truck-delivery-outline"
                     title="Suppliers"
                     @click="router.visit(route('suppliers.index'))"
                     :active="route().current('suppliers.*')"
+                    rounded="lg"
                 ></v-list-item>
             </v-list>
 

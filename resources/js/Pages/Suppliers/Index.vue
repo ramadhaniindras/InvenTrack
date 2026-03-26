@@ -1,7 +1,7 @@
 <template>
     <AuthenticatedLayout>
-        <v-container fluid class="px-6 py-10">
-            <v-card elevation="1" rounded="xl">
+        <v-container fluid class="px-6 py-10 bg-grey-lighten-4">
+            <v-card elevation="1" rounded="xl" class="border-sm">
                 <v-toolbar color="white" flat class="border-b px-4 py-2">
                     <v-icon
                         icon="mdi-truck-delivery-outline"
@@ -44,41 +44,43 @@
                     class="pa-2"
                 >
                     <template v-slot:item.phone="{ item }">
-                        <v-btn
-                            variant="text"
-                            color="success"
-                            size="small"
-                            prepend-icon="mdi-whatsapp"
-                            :href="'https://wa.me/' + item.phone"
-                            target="_blank"
-                        >
-                            {{ item.phone }}
-                        </v-btn>
+                        <div class="d-flex align-center">
+                            <v-icon color="success" size="small" class="me-2"
+                                >mdi-whatsapp</v-icon
+                            >
+                            <span class="text-body-2 font-weight-medium">{{
+                                item.phone || "-"
+                            }}</span>
+                        </div>
                     </template>
 
                     <template v-slot:item.actions="{ item }">
                         <div class="d-flex ga-2 justify-end">
                             <v-btn
+                                icon="mdi-whatsapp"
+                                variant="text"
+                                color="success"
+                                size="small"
+                                title="Download PO & Chat WA"
+                                @click="generateAndChat(item)"
+                            ></v-btn>
+
+                            <v-btn
                                 icon="mdi-pencil-outline"
                                 variant="text"
                                 color="blue"
                                 size="small"
+                                title="Edit Data"
                                 @click="editItem(item)"
                             ></v-btn>
+
                             <v-btn
                                 icon="mdi-delete-outline"
                                 variant="text"
                                 color="red"
                                 size="small"
+                                title="Hapus Supplier"
                                 @click="deleteItem(item.id)"
-                            ></v-btn>
-                            <v-btn
-                                icon="mdi-file-document-edit-outline"
-                                variant="text"
-                                color="orange-darken-2"
-                                size="small"
-                                title="Buat Purchase Order"
-                                @click="generatePO(item.id)"
                             ></v-btn>
                         </div>
                     </template>
@@ -111,7 +113,10 @@
                         v-model="form.phone"
                         label="Nomor WhatsApp"
                         variant="outlined"
-                        placeholder="62812xxx"
+                        placeholder="62812xxx atau 0812xxx"
+                        hint="Gunakan format nomor yang benar biar bisa otomatis WA"
+                        persistent-hint
+                        class="mb-4"
                         :error-messages="form.errors.phone"
                     ></v-text-field>
                     <v-textarea
@@ -202,7 +207,39 @@ const deleteItem = (id) => {
         router.delete(route("suppliers.destroy", id));
     });
 };
-const generatePO = (id) => {
-    window.location.href = route("po.generate", id);
+
+const generateAndChat = (supplier) => {
+    if (!supplier.phone) {
+        alert("Nomor WA supplier ini kosong, Bro! Isi dulu biar bisa gas.");
+        return;
+    }
+
+    const downloadUrl = route("po.generate", { supplier: supplier.id });
+    const link = document.createElement("a");
+    link.href = downloadUrl;
+    link.setAttribute("download", "");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    let phone = supplier.phone.replace(/\D/g, "");
+    if (phone.startsWith("0")) {
+        phone = "62" + phone.slice(1);
+    }
+
+    const message =
+        `Halo ${supplier.name}, saya mau order barang.%0A%0A` +
+        `File Purchase Order (PO) saya lampirkan di sini.%0A` +
+        `Mohon diproses ya, Terima kasih!`;
+
+    const waUrl = `https://wa.me/${phone}?text=${message}`;
+
+    window.open(waUrl, "_blank");
 };
 </script>
+
+<style scoped>
+.border-sm {
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+</style>

@@ -40,7 +40,7 @@
                             </div>
                         </div>
                     </v-col>
-                    <v-col cols="12" md="6">
+                    <v-col cols="12" md="6" class="text-md-right">
                         <div class="d-flex ga-2 justify-md-end">
                             <v-select
                                 v-model="filterForm.month"
@@ -201,15 +201,6 @@
                                 </div>
                             </v-hover>
                         </div>
-                        <div
-                            v-else
-                            class="text-center py-10 fill-height d-flex flex-column align-center justify-center"
-                        >
-                            <v-icon size="64" color="grey-lighten-2"
-                                >mdi-chart-line-variant</v-icon
-                            >
-                            <p class="text-grey mt-2">Belum ada data</p>
-                        </div>
                     </v-card>
                 </v-col>
             </v-row>
@@ -227,7 +218,7 @@
                             >
                             <v-toolbar-title
                                 class="text-subtitle-1 font-weight-black"
-                                >Rekomendasi Order!</v-toolbar-title
+                                >Wajib Order!</v-toolbar-title
                             >
                             <v-btn
                                 icon="mdi-truck-fast-outline"
@@ -238,6 +229,7 @@
                                 @click="router.visit('/suppliers')"
                             ></v-btn>
                         </v-toolbar>
+
                         <v-list lines="two" class="pa-0">
                             <v-list-item
                                 v-for="item in stats.low_stock_list"
@@ -268,30 +260,16 @@
                                 </v-list-item-subtitle>
                                 <template v-slot:append>
                                     <v-btn
-                                        icon="mdi-chevron-right"
-                                        variant="text"
+                                        icon="mdi-whatsapp"
+                                        variant="tonal"
+                                        color="success"
                                         size="small"
-                                        color="grey"
-                                        @click="router.visit('/products')"
+                                        class="rounded-lg"
+                                        title="Order via WhatsApp"
+                                        @click="sendWhatsApp(item)"
                                     ></v-btn>
                                 </template>
                             </v-list-item>
-                            <div
-                                v-if="
-                                    !stats.low_stock_list ||
-                                    stats.low_stock_list.length === 0
-                                "
-                                class="text-center py-10 px-4 fill-height d-flex flex-column align-center justify-center"
-                            >
-                                <v-icon size="48" color="success"
-                                    >mdi-check-decagram</v-icon
-                                >
-                                <p
-                                    class="text-grey-darken-1 font-weight-bold mt-2"
-                                >
-                                    Stok aman terkendali!
-                                </p>
-                            </div>
                         </v-list>
                     </v-card>
                 </v-col>
@@ -451,7 +429,7 @@ const formatIDR = (val) => {
     }).format(val || 0);
 };
 
-// Fixed logic for stat cards to prevent "undefined" errors
+
 const statCards = computed(() => {
     if (!props.stats) return [];
     return [
@@ -485,6 +463,38 @@ const statCards = computed(() => {
         },
     ];
 });
+
+const sendWhatsApp = (item) => {
+    const rawPhone = item.supplier?.phone || "";
+    if (!rawPhone) {
+        alert(
+            "Nomor HP Supplier belum ada, Bro! Isi dulu di data Master Supplier.",
+        );
+        return;
+    }
+
+    const downloadUrl = route("po.download", { product: item.id });
+    const link = document.createElement("a");
+    link.href = downloadUrl;
+    link.setAttribute("download", ""); 
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    let phone = rawPhone.replace(/\D/g, "");
+    if (phone.startsWith("0")) {
+        phone = "62" + phone.slice(1);
+    }
+
+    const message =
+        `Halo ${item.supplier.name}, saya mau order barang *${item.name}*.%0A%0A` +
+        `File PO saya lampirkan di bawah ini ya.%0A` +
+        `Mohon segera dicek. Terima kasih!`;
+
+    const waUrl = `https://wa.me/${phone}?text=${message}`;
+
+    window.open(waUrl, "_blank");
+};
 
 const calculatePercent = (val) => {
     const max = props.topProducts?.[0]?.total || 100;

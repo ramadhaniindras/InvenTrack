@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Product;
 use App\Models\Supplier;
 use App\Models\StockMovement;
@@ -9,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 class DashboardController extends Controller
 {
@@ -60,10 +62,10 @@ class DashboardController extends Controller
 
         $stats = [
             'total_products' => Product::count(),
-            'total_suppliers' => Supplier::count(), 
+            'total_suppliers' => Supplier::count(),
             'low_stock_count' => Product::whereColumn('stock', '<=', 'min_stock')->count(),
             'total_asset_value' => (int) Product::selectRaw('SUM(stock * price) as total')->value('total') ?? 0,
-            'low_stock_list' => Product::with('supplier') 
+            'low_stock_list' => Product::with('supplier')
                 ->whereColumn('stock', '<=', 'min_stock')
                 ->orderBy('stock', 'asc')
                 ->take(5)
@@ -73,7 +75,6 @@ class DashboardController extends Controller
                 ->take(5)
                 ->get(),
         ];
-
 
         return Inertia::render('Dashboard', [
             'stats' => $stats,
@@ -88,5 +89,25 @@ class DashboardController extends Controller
                 'year' => (int) $year,
             ]
         ]);
+    }
+
+    public function downloadPO(Product $product)
+    {
+        $product->load('supplier');
+
+        $items = [$product];
+
+        $data = [
+            'date' => now()->format('d M Y'),
+            'po_number' => 'PO-' . strtoupper(Str::random(5)),
+            'supplier' => $product->supplier,
+            'items' => $items, 
+        ];
+
+        $pdf = Pdf::loadView('pdf.purchase_order', $data);
+
+        $fileName = 'PO_' . str_replace(' ', '_', $product->name) . '.pdf';
+
+        return $pdf->download($fileName);
     }
 }
