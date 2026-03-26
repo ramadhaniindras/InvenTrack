@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-
+use App\Models\Supplier;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Models\Product;
 use App\Models\Category;
@@ -13,10 +13,9 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class ProductController extends Controller
 {
-
     public function index(Request $request)
     {
-        $query = Product::with('category');
+        $query = Product::with(['category', 'supplier']);
 
         if ($request->has('category_id')) {
             $query->where('category_id', $request->category_id);
@@ -25,6 +24,7 @@ class ProductController extends Controller
         return Inertia::render('Products/Index', [
             'products' => $query->latest()->get(),
             'categories' => Category::all(),
+            'suppliers' => Supplier::all(),
             'filters' => $request->only(['category_id'])
         ]);
     }
@@ -35,10 +35,11 @@ class ProductController extends Controller
             'sku' => 'required|unique:products,sku',
             'name' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
+            'supplier_id' => 'nullable|exists:suppliers,id', 
             'stock' => 'required|integer|min:0',
             'min_stock' => 'required|integer|min:0',
             'price' => 'required|numeric|min:0',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048', // Max 2MB
+            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048', 
         ]);
 
         if ($request->hasFile('image')) {
@@ -47,7 +48,7 @@ class ProductController extends Controller
 
         Product::create($attr);
 
-        return redirect()->route('products.index')->with('success', 'Barang mantap, foto tersimpan! 📸');
+        return redirect()->route('products.index')->with('success', 'Barang mantap, foto & supplier tersimpan! 📸');
     }
 
     public function update(Request $request, Product $product)
@@ -56,6 +57,7 @@ class ProductController extends Controller
             'sku' => 'required|unique:products,sku,' . $product->id,
             'name' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
+            'supplier_id' => 'nullable|exists:suppliers,id', 
             'stock' => 'required|numeric|min:0',
             'min_stock' => 'required|numeric|min:0',
             'price' => 'required|numeric|min:0',
@@ -71,9 +73,8 @@ class ProductController extends Controller
 
         $product->update($attr);
 
-        return redirect()->back()->with('success', 'Data barang berhasil diupdate! ✨');
+        return redirect()->back()->with('success', 'Data barang & supplier berhasil diupdate! ✨');
     }
-
 
     public function destroy(Product $product)
     {
@@ -88,7 +89,8 @@ class ProductController extends Controller
 
     public function exportPdf()
     {
-        $products = Product::with('category')->get();
+        
+        $products = Product::with(['category', 'supplier'])->get(); 
         $totalAsset = $products->sum(fn($p) => $p->stock * $p->price);
 
         $pdf = Pdf::loadView('pdf.products', [
@@ -99,6 +101,7 @@ class ProductController extends Controller
 
         return $pdf->download('laporan-stok-barang.pdf');
     }
+
     public function downloadQrCode($id)
     {
         $product = Product::findOrFail($id);

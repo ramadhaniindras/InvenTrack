@@ -10,6 +10,8 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\PurchaseOrderController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -54,6 +56,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     //Qr code
     Route::get('/products/{product}/qrcode', [ProductController::class, 'downloadQrCode'])->name('products.qr');
+
+    //Suppliers
+    Route::resource('suppliers', SupplierController::class);
+
+    // Purchase Orders
+    Route::get('/purchase-order/{supplier}', [PurchaseOrderController::class, 'generate'])->name('po.generate');
 });
 
 require __DIR__ . '/auth.php';

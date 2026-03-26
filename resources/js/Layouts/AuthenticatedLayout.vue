@@ -63,6 +63,12 @@
                     :active="route().current('reports.*')"
                     rounded="lg"
                 ></v-list-item>
+                <v-list-item
+                    prepend-icon="mdi-truck-delivery-outline"
+                    title="Suppliers"
+                    @click="router.visit(route('suppliers.index'))"
+                    :active="route().current('suppliers.*')"
+                ></v-list-item>
             </v-list>
 
             <template v-slot:append>
@@ -117,8 +123,7 @@
         <v-main class="bg-grey-lighten-5">
             <slot />
         </v-main>
-
-        </v-app>
+    </v-app>
 </template>
 
 <script setup>

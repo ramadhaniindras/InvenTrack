@@ -140,6 +140,23 @@
                         </div>
                     </template>
 
+                    <template v-slot:item.supplier.name="{ item }">
+                        <span
+                            v-if="item.supplier"
+                            class="text-caption font-weight-bold text-primary"
+                        >
+                            <v-icon size="x-small" class="me-1"
+                                >mdi-truck-outline</v-icon
+                            >
+                            {{ item.supplier.name }}
+                        </span>
+                        <span
+                            v-else
+                            class="text-caption text-grey-lighten-1 italic"
+                            >N/A</span
+                        >
+                    </template>
+
                     <template v-slot:item.price="{ item }">
                         <span class="font-weight-medium">{{
                             formatCurrency(item.price)
@@ -354,6 +371,18 @@
                             </v-col>
                             <v-col cols="12" md="6">
                                 <v-select
+                                    v-model="form.supplier_id"
+                                    label="Supplier Utama"
+                                    :items="suppliers"
+                                    item-title="name"
+                                    item-value="id"
+                                    variant="outlined"
+                                    density="comfortable"
+                                    clearable
+                                ></v-select>
+                            </v-col>
+                            <v-col cols="12" md="12">
+                                <v-select
                                     v-model="form.category_id"
                                     label="Kategori"
                                     :items="categories"
@@ -546,6 +575,7 @@ import { ref, computed, onBeforeUnmount, nextTick } from "vue";
 const props = defineProps({
     products: Array,
     categories: Array,
+    suppliers: Array,
     filters: Object,
 });
 
@@ -566,6 +596,7 @@ const headers = [
     { title: "SKU", key: "sku", align: "start", sortable: true },
     { title: "Nama Barang", key: "name", align: "start" },
     { title: "Kategori", key: "category.name", align: "start" },
+    { title: "Supplier", key: "supplier.name", align: "start" },
     { title: "Stok", key: "stock", align: "center" },
     { title: "Harga", key: "price", align: "start" },
     { title: "Aksi", key: "actions", sortable: false, align: "end" },
@@ -582,6 +613,7 @@ const form = useForm({
     sku: "",
     name: "",
     category_id: null,
+    supplier_id: null,
     stock: 0,
     min_stock: 5,
     price: 0,
@@ -644,6 +676,7 @@ const editItem = (item) => {
     form.sku = item.sku;
     form.name = item.name;
     form.category_id = item.category_id;
+    form.supplier_id = item.supplier_id;
     form.stock = item.stock;
     form.min_stock = item.min_stock;
     form.price = item.price;
@@ -652,16 +685,18 @@ const editItem = (item) => {
 };
 
 const submit = () => {
-
-    const action = isEditing.value ? route("products.update", form.id) : route("products.store");
+    const action = isEditing.value
+        ? route("products.update", form.id)
+        : route("products.store");
 
     if (isEditing.value) {
         form.transform((data) => ({
             ...data,
-            _method: "put", 
+            supplier_id: form.supplier_id,
+            _method: "put",
         })).post(action, {
             onSuccess: () => closeDialog(),
-            forceFormData: true, 
+            forceFormData: true,
         });
     } else {
         form.post(action, {
