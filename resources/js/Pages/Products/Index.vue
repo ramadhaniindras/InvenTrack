@@ -1,8 +1,12 @@
 <template>
     <AuthenticatedLayout>
-        <v-container fluid class="px-6 py-10">
-            <v-card elevation="1" rounded="xl">
-                <v-toolbar color="white" flat class="border-b px-4 py-2">
+        <v-container fluid class="pa-4 pa-md-8 bg-background">
+            <v-card
+                elevation="0"
+                rounded="xl"
+                class="border-sm shadow-sm bg-surface"
+            >
+                <v-toolbar flat class="border-b px-4 py-2 bg-surface">
                     <v-icon
                         icon="mdi-package-variant-closed"
                         color="primary"
@@ -19,23 +23,6 @@
                         class="me-2"
                     >
                         Total: <strong>{{ products.length }}</strong>
-                    </v-chip>
-
-                    <v-chip
-                        v-if="
-                            products.filter((p) => p.stock <= p.min_stock)
-                                .length > 0
-                        "
-                        size="x-small"
-                        variant="tonal"
-                        color="error"
-                        class="me-2"
-                    >
-                        Restock:
-                        <strong>{{
-                            products.filter((p) => p.stock <= p.min_stock)
-                                .length
-                        }}</strong>
                     </v-chip>
 
                     <v-spacer></v-spacer>
@@ -85,14 +72,15 @@
                     :items="products"
                     :search="search"
                     hover
-                    class="pa-2"
+                    class="pa-2 bg-surface"
                 >
                     <template v-slot:item.image="{ item }">
                         <v-avatar
                             size="45"
                             rounded="lg"
                             class="border my-1"
-                            color="grey-lighten-4"
+                            variant="tonal"
+                            color="primary"
                         >
                             <v-img
                                 :src="
@@ -101,17 +89,7 @@
                                         : '/images/no-image.png'
                                 "
                                 cover
-                            >
-                                <template v-slot:placeholder>
-                                    <div
-                                        class="d-flex align-center justify-center fill-height"
-                                    >
-                                        <v-icon color="grey-lighten-1"
-                                            >mdi-package-variant</v-icon
-                                        >
-                                    </div>
-                                </template>
-                            </v-img>
+                            ></v-img>
                         </v-avatar>
                     </template>
 
@@ -132,29 +110,11 @@
                             <v-btn
                                 icon="mdi-qrcode"
                                 variant="text"
-                                color="purple-lighten-1"
+                                color="secondary"
                                 size="small"
                                 @click="printQrCode(item.id)"
-                                title="Cetak QR Code"
                             ></v-btn>
                         </div>
-                    </template>
-
-                    <template v-slot:item.supplier.name="{ item }">
-                        <span
-                            v-if="item.supplier"
-                            class="text-caption font-weight-bold text-primary"
-                        >
-                            <v-icon size="x-small" class="me-1"
-                                >mdi-truck-outline</v-icon
-                            >
-                            {{ item.supplier.name }}
-                        </span>
-                        <span
-                            v-else
-                            class="text-caption text-grey-lighten-1 italic"
-                            >N/A</span
-                        >
                     </template>
 
                     <template v-slot:item.price="{ item }">
@@ -171,7 +131,6 @@
                                 color="success"
                                 size="small"
                                 @click="openStockDialog(item, 'in')"
-                                title="Stok Masuk"
                             ></v-btn>
                             <v-btn
                                 icon="mdi-arrow-down-bold-circle-outline"
@@ -179,20 +138,17 @@
                                 color="orange"
                                 size="small"
                                 @click="openStockDialog(item, 'out')"
-                                title="Stok Keluar"
                             ></v-btn>
 
                             <v-menu transition="scale-transition">
-                                <template
-                                    v-slot:activator="{ props }"
-                                    v-if="
-                                        $page.props.auth.user.role === 'admin'
-                                    "
-                                >
+                                <template v-slot:activator="{ props }">
                                     <v-btn
+                                        v-if="
+                                            $page.props.auth.user.role ===
+                                            'admin'
+                                        "
                                         icon="mdi-dots-vertical"
                                         variant="text"
-                                        color="grey-darken-1"
                                         size="small"
                                         v-bind="props"
                                     ></v-btn>
@@ -200,37 +156,25 @@
                                 <v-list
                                     rounded="lg"
                                     density="comfortable"
-                                    class="border shadow-sm"
+                                    class="border bg-surface"
                                 >
-                                    <template
-                                        v-if="
-                                            $page.props.auth.user.role ===
-                                            'admin'
-                                        "
-                                    >
-                                        <v-list-item
-                                            prepend-icon="mdi-swap-vertical"
-                                            title="Sesuaikan Stok"
-                                            @click="openAdjustDialog(item)"
-                                        ></v-list-item>
-                                        <v-list-item
-                                            prepend-icon="mdi-pencil-outline"
-                                            title="Edit Barang"
-                                            color="blue"
-                                            @click="editItem(item)"
-                                        ></v-list-item>
-                                        <v-divider></v-divider>
-                                        <v-list-item
-                                            prepend-icon="mdi-delete-outline"
-                                            title="Hapus Barang"
-                                            color="red"
-                                            @click="deleteItem(item.id)"
-                                        ></v-list-item>
-                                    </template>
                                     <v-list-item
-                                        v-else
-                                        prepend-icon="mdi-information-outline"
-                                        title="Detail Info"
+                                        prepend-icon="mdi-swap-vertical"
+                                        title="Sesuaikan Stok"
+                                        @click="openAdjustDialog(item)"
+                                    ></v-list-item>
+                                    <v-list-item
+                                        prepend-icon="mdi-pencil-outline"
+                                        title="Edit Barang"
+                                        color="blue"
+                                        @click="editItem(item)"
+                                    ></v-list-item>
+                                    <v-divider></v-divider>
+                                    <v-list-item
+                                        prepend-icon="mdi-delete-outline"
+                                        title="Hapus Barang"
+                                        color="red"
+                                        @click="deleteItem(item.id)"
                                     ></v-list-item>
                                 </v-list>
                             </v-menu>
@@ -248,72 +192,8 @@
                 @click="openScanner"
             ></v-btn>
 
-            <v-dialog v-model="scannerDialog" max-width="500px" persistent>
-                <v-card rounded="xl">
-                    <v-card-title class="bg-primary text-white pa-4">
-                        <v-icon icon="mdi-qrcode-scan" class="me-2"></v-icon>
-                        Scan Barang InvenTrack
-                    </v-card-title>
-                    <v-card-text class="pt-6">
-                        <div
-                            v-show="!scannedProduct"
-                            id="reader"
-                            style="width: 100%"
-                        ></div>
-                        <v-expand-transition>
-                            <div v-if="scannedProduct" class="text-center pa-4">
-                                <v-avatar
-                                    size="100"
-                                    rounded="lg"
-                                    class="border mb-4"
-                                >
-                                    <v-img
-                                        :src="
-                                            scannedProduct.image
-                                                ? '/storage/' +
-                                                  scannedProduct.image
-                                                : '/images/no-image.png'
-                                        "
-                                        cover
-                                    ></v-img>
-                                </v-avatar>
-                                <h3 class="text-h6 font-weight-bold">
-                                    {{ scannedProduct.name }}
-                                </h3>
-                                <p class="text-subtitle-2 text-grey mb-6">
-                                    SKU: {{ scannedProduct.sku }} | Stok:
-                                    {{ scannedProduct.stock }}
-                                </p>
-                                <div class="d-flex ga-3 justify-center">
-                                    <v-btn
-                                        color="success"
-                                        prepend-icon="mdi-arrow-up-bold"
-                                        rounded="lg"
-                                        @click="actionFromScan('in')"
-                                        >Stok Masuk</v-btn
-                                    >
-                                    <v-btn
-                                        color="orange"
-                                        prepend-icon="mdi-arrow-down-bold"
-                                        rounded="lg"
-                                        @click="actionFromScan('out')"
-                                        >Stok Keluar</v-btn
-                                    >
-                                </div>
-                            </div>
-                        </v-expand-transition>
-                    </v-card-text>
-                    <v-card-actions class="pa-4">
-                        <v-spacer></v-spacer>
-                        <v-btn variant="text" @click="closeScanner"
-                            >Tutup Kamera</v-btn
-                        >
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
-
             <v-dialog v-model="dialog" max-width="600px" persistent>
-                <v-card rounded="xl">
+                <v-card rounded="xl" class="bg-surface">
                     <v-card-title
                         class="pa-4 bg-primary text-white d-flex align-center"
                     >
@@ -321,7 +201,7 @@
                             :icon="isEditing ? 'mdi-pencil' : 'mdi-plus'"
                             class="me-2"
                         ></v-icon>
-                        <span class="text-h6">{{
+                        <span>{{
                             isEditing ? "Edit Produk" : "Tambah Produk Baru"
                         }}</span>
                     </v-card-title>
@@ -334,8 +214,7 @@
                                 <v-avatar
                                     size="120"
                                     rounded="xl"
-                                    class="border mb-3"
-                                    color="grey-lighten-4"
+                                    class="border mb-3 bg-background"
                                 >
                                     <v-img
                                         :src="
@@ -349,40 +228,40 @@
                                 </v-avatar>
                                 <v-file-input
                                     v-model="imageFile"
-                                    label="Pilih Foto Barang"
+                                    label="Pilih Foto"
                                     variant="outlined"
                                     prepend-icon="mdi-camera"
                                     accept="image/*"
-                                    density="comfortable"
+                                    density="compact"
                                     hide-details
                                     @change="handleImageChange"
                                     @click:clear="clearImage"
                                     style="width: 100%"
                                 ></v-file-input>
                             </v-col>
-                            <v-col cols="12" md="6">
-                                <v-text-field
+                            <v-col cols="12" md="6"
+                                ><v-text-field
                                     v-model="form.sku"
-                                    label="SKU / Kode Barang"
+                                    label="SKU"
                                     variant="outlined"
                                     density="comfortable"
                                     :error-messages="form.errors.sku"
-                                ></v-text-field>
-                            </v-col>
-                            <v-col cols="12" md="6">
-                                <v-select
+                                ></v-text-field
+                            ></v-col>
+                            <v-col cols="12" md="6"
+                                ><v-select
                                     v-model="form.supplier_id"
-                                    label="Supplier Utama"
+                                    label="Supplier"
                                     :items="suppliers"
                                     item-title="name"
                                     item-value="id"
                                     variant="outlined"
                                     density="comfortable"
                                     clearable
-                                ></v-select>
-                            </v-col>
-                            <v-col cols="12" md="12">
-                                <v-select
+                                ></v-select
+                            ></v-col>
+                            <v-col cols="12"
+                                ><v-select
                                     v-model="form.category_id"
                                     label="Kategori"
                                     :items="categories"
@@ -391,56 +270,51 @@
                                     variant="outlined"
                                     density="comfortable"
                                     :error-messages="form.errors.category_id"
-                                ></v-select>
-                            </v-col>
-                            <v-col cols="12">
-                                <v-text-field
+                                ></v-select
+                            ></v-col>
+                            <v-col cols="12"
+                                ><v-text-field
                                     v-model="form.name"
                                     label="Nama Barang"
                                     variant="outlined"
                                     density="comfortable"
                                     :error-messages="form.errors.name"
-                                ></v-text-field>
-                            </v-col>
-                            <v-col cols="4">
-                                <v-text-field
+                                ></v-text-field
+                            ></v-col>
+                            <v-col cols="4"
+                                ><v-text-field
                                     v-model.number="form.stock"
                                     type="number"
                                     label="Stok"
                                     variant="outlined"
                                     density="comfortable"
-                                ></v-text-field>
-                            </v-col>
-                            <v-col cols="4">
-                                <v-text-field
+                                ></v-text-field
+                            ></v-col>
+                            <v-col cols="4"
+                                ><v-text-field
                                     v-model.number="form.min_stock"
                                     type="number"
-                                    label="Limit Stok"
+                                    label="Limit"
                                     variant="outlined"
                                     density="comfortable"
-                                ></v-text-field>
-                            </v-col>
-                            <v-col cols="4">
-                                <v-text-field
+                                ></v-text-field
+                            ></v-col>
+                            <v-col cols="4"
+                                ><v-text-field
                                     v-model.number="form.price"
                                     type="number"
                                     label="Harga"
                                     variant="outlined"
                                     density="comfortable"
                                     prefix="Rp"
-                                ></v-text-field>
-                            </v-col>
+                                ></v-text-field
+                            ></v-col>
                         </v-row>
                     </v-card-text>
                     <v-divider></v-divider>
                     <v-card-actions class="pa-4">
                         <v-spacer></v-spacer>
-                        <v-btn
-                            variant="text"
-                            @click="closeDialog"
-                            :disabled="form.processing"
-                            >Batal</v-btn
-                        >
+                        <v-btn variant="text" @click="closeDialog">Batal</v-btn>
                         <v-btn
                             color="primary"
                             variant="flat"
@@ -453,8 +327,53 @@
                 </v-card>
             </v-dialog>
 
+            <v-dialog v-model="adjustDialog" max-width="450px" persistent>
+                <v-card rounded="xl" class="bg-surface">
+                    <v-card-title class="bg-orange-darken-2 text-white pa-4">
+                        <v-icon icon="mdi-wrench" class="me-2"></v-icon>
+                        <span>Penyesuaian Stok Manual</span>
+                    </v-card-title>
+                    <v-card-text class="pt-6">
+                        <v-alert
+                            type="warning"
+                            variant="tonal"
+                            density="compact"
+                            class="mb-4 text-caption"
+                            >Gunakan jika stok fisik berbeda dengan
+                            aplikasi.</v-alert
+                        >
+                        <v-text-field
+                            v-model.number="adjustForm.actual_stock"
+                            type="number"
+                            label="Stok Fisik Sebenarnya"
+                            variant="outlined"
+                        ></v-text-field>
+                        <v-textarea
+                            v-model="adjustForm.reason"
+                            label="Alasan"
+                            variant="outlined"
+                            rows="2"
+                        ></v-textarea>
+                    </v-card-text>
+                    <v-card-actions class="pa-4">
+                        <v-spacer></v-spacer>
+                        <v-btn variant="text" @click="adjustDialog = false"
+                            >Batal</v-btn
+                        >
+                        <v-btn
+                            color="orange-darken-2"
+                            variant="flat"
+                            rounded="lg"
+                            @click="submitAdjust"
+                            :loading="adjustForm.processing"
+                            >Simpan Perubahan</v-btn
+                        >
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+
             <v-dialog v-model="stockDialog" max-width="450px" persistent>
-                <v-card rounded="xl">
+                <v-card rounded="xl" class="bg-surface">
                     <v-card-title
                         :class="
                             stockForm.type === 'in' ? 'bg-success' : 'bg-orange'
@@ -470,7 +389,7 @@
                     </v-card-title>
                     <v-card-text class="pt-6">
                         <div
-                            class="mb-4 pa-3 bg-grey-lighten-4 rounded-lg border text-subtitle-1 font-weight-bold text-primary"
+                            class="mb-4 pa-3 bg-background rounded-lg border text-subtitle-1 font-weight-bold text-primary"
                         >
                             {{ stockForm.product_name }}
                         </div>
@@ -479,7 +398,6 @@
                             type="number"
                             label="Jumlah"
                             variant="outlined"
-                            min="1"
                         ></v-text-field>
                         <v-text-field
                             v-model="stockForm.reference"
@@ -493,13 +411,9 @@
                             rows="2"
                         ></v-textarea>
                     </v-card-text>
-                    <v-divider></v-divider>
                     <v-card-actions class="pa-4">
                         <v-spacer></v-spacer>
-                        <v-btn
-                            variant="text"
-                            @click="stockDialog = false"
-                            :disabled="stockForm.processing"
+                        <v-btn variant="text" @click="stockDialog = false"
                             >Batal</v-btn
                         >
                         <v-btn
@@ -507,6 +421,7 @@
                                 stockForm.type === 'in' ? 'success' : 'orange'
                             "
                             variant="flat"
+                            rounded="lg"
                             @click="submitStock"
                             :loading="stockForm.processing"
                             >Konfirmasi</v-btn
@@ -515,50 +430,62 @@
                 </v-card>
             </v-dialog>
 
-            <v-dialog v-model="adjustDialog" max-width="450px" persistent>
-                <v-card rounded="xl">
-                    <v-card-title class="bg-orange-darken-2 text-white pa-4">
-                        <v-icon icon="mdi-wrench" class="me-2"></v-icon>
-                        <span>Penyesuaian Stok Manual</span>
+            <v-dialog v-model="scannerDialog" max-width="500px" persistent>
+                <v-card rounded="xl" class="bg-surface">
+                    <v-card-title class="bg-primary text-white pa-4">
+                        <v-icon icon="mdi-qrcode-scan" class="me-2"></v-icon>
+                        Scan Barang
                     </v-card-title>
                     <v-card-text class="pt-6">
-                        <v-alert
-                            type="warning"
-                            variant="tonal"
-                            density="compact"
-                            class="mb-4 text-caption"
-                            >Gunakan ini jika stok fisik berbeda dengan
-                            aplikasi.</v-alert
-                        >
-                        <v-text-field
-                            v-model.number="adjustForm.actual_stock"
-                            type="number"
-                            label="Stok Sebenarnya (Fisik)"
-                            variant="outlined"
-                        ></v-text-field>
-                        <v-textarea
-                            v-model="adjustForm.reason"
-                            label="Alasan"
-                            variant="outlined"
-                            rows="2"
-                        ></v-textarea>
+                        <div
+                            v-show="!scannedProduct"
+                            id="reader"
+                            style="width: 100%"
+                            class="rounded-lg overflow-hidden"
+                        ></div>
+                        <v-expand-transition>
+                            <div v-if="scannedProduct" class="text-center pa-4">
+                                <v-avatar
+                                    size="100"
+                                    rounded="lg"
+                                    class="border mb-4 bg-background"
+                                >
+                                    <v-img
+                                        :src="
+                                            scannedProduct.image
+                                                ? '/storage/' +
+                                                  scannedProduct.image
+                                                : '/images/no-image.png'
+                                        "
+                                        cover
+                                    ></v-img>
+                                </v-avatar>
+                                <h3 class="text-h6 font-weight-bold">
+                                    {{ scannedProduct.name }}
+                                </h3>
+                                <div class="d-flex ga-3 justify-center mt-4">
+                                    <v-btn
+                                        color="success"
+                                        rounded="lg"
+                                        @click="actionFromScan('in')"
+                                        >Masuk</v-btn
+                                    >
+                                    <v-btn
+                                        color="orange"
+                                        rounded="lg"
+                                        @click="actionFromScan('out')"
+                                        >Keluar</v-btn
+                                    >
+                                </div>
+                            </div>
+                        </v-expand-transition>
                     </v-card-text>
-                    <v-card-actions class="pa-4">
-                        <v-spacer></v-spacer>
-                        <v-btn
-                            variant="text"
-                            @click="adjustDialog = false"
-                            :disabled="adjustForm.processing"
-                            >Batal</v-btn
-                        >
-                        <v-btn
-                            color="orange-darken-2"
-                            variant="flat"
-                            @click="submitAdjust"
-                            :loading="adjustForm.processing"
-                            >Simpan Perubahan</v-btn
-                        >
-                    </v-card-actions>
+                    <v-card-actions class="pa-4"
+                        ><v-spacer></v-spacer
+                        ><v-btn variant="text" @click="closeScanner"
+                            >Tutup</v-btn
+                        ></v-card-actions
+                    >
                 </v-card>
             </v-dialog>
         </v-container>
@@ -809,13 +736,24 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+/* GANTI: Warna header tabel agar adaptif menggunakan text-medium-emphasis */
 .v-data-table :deep(thead th) {
     font-weight: 700 !important;
     text-transform: uppercase;
     font-size: 0.75rem;
-    color: #616161;
+    color: rgba(var(--v-theme-on-surface), 0.6) !important;
 }
+
+.border-sm {
+    border: 1px solid rgba(var(--v-border-color), 0.12) !important;
+}
+
 .shadow-sm {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* GANTI: bg-grey-lighten-4 di scanner reader agar tidak silau */
+#reader {
+    background: rgba(var(--v-theme-surface-variant), 0.2);
 }
 </style>

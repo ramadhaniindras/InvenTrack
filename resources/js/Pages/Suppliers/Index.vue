@@ -1,8 +1,12 @@
 <template>
     <AuthenticatedLayout>
-        <v-container fluid class="px-6 py-10 bg-grey-lighten-4">
-            <v-card elevation="1" rounded="xl" class="border-sm">
-                <v-toolbar color="white" flat class="border-b px-4 py-2">
+        <v-container fluid class="pa-4 pa-md-8 bg-background">
+            <v-card
+                elevation="0"
+                rounded="xl"
+                class="border-sm shadow-sm bg-surface"
+            >
+                <v-toolbar flat class="border-b px-4 py-2 bg-surface">
                     <v-icon
                         icon="mdi-truck-delivery-outline"
                         color="primary"
@@ -41,16 +45,18 @@
                     :items="suppliers"
                     :search="search"
                     hover
-                    class="pa-2"
+                    class="pa-2 bg-surface"
                 >
                     <template v-slot:item.phone="{ item }">
                         <div class="d-flex align-center">
                             <v-icon color="success" size="small" class="me-2"
                                 >mdi-whatsapp</v-icon
                             >
-                            <span class="text-body-2 font-weight-medium">{{
-                                item.phone || "-"
-                            }}</span>
+                            <span
+                                class="text-body-2 font-weight-medium text-medium-emphasis"
+                            >
+                                {{ item.phone || "-" }}
+                            </span>
                         </div>
                     </template>
 
@@ -58,9 +64,10 @@
                         <div class="d-flex ga-2 justify-end">
                             <v-btn
                                 icon="mdi-whatsapp"
-                                variant="text"
+                                variant="tonal"
                                 color="success"
                                 size="small"
+                                class="rounded-lg"
                                 title="Download PO & Chat WA"
                                 @click="generateAndChat(item)"
                             ></v-btn>
@@ -89,7 +96,7 @@
         </v-container>
 
         <v-dialog v-model="dialog" max-width="500px" persistent>
-            <v-card rounded="xl">
+            <v-card rounded="xl" class="bg-surface">
                 <v-card-title class="pa-4 bg-primary text-white">
                     <v-icon
                         :icon="isEditing ? 'mdi-pencil' : 'mdi-plus'"
@@ -114,7 +121,7 @@
                         label="Nomor WhatsApp"
                         variant="outlined"
                         placeholder="62812xxx atau 0812xxx"
-                        hint="Gunakan format nomor yang benar biar bisa otomatis WA"
+                        hint="Format: 628xxx (Otomatis ke WA)"
                         persistent-hint
                         class="mb-4"
                         :error-messages="form.errors.phone"
@@ -126,6 +133,7 @@
                         rows="2"
                     ></v-textarea>
                 </v-card-text>
+                <v-divider></v-divider>
                 <v-card-actions class="pa-4">
                     <v-spacer></v-spacer>
                     <v-btn variant="text" @click="closeDialog">Batal</v-btn>
@@ -239,7 +247,19 @@ const generateAndChat = (supplier) => {
 </script>
 
 <style scoped>
+/* Header Tabel agar adaptif warnanya */
+.v-data-table :deep(thead th) {
+    font-weight: 700 !important;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    color: rgba(var(--v-theme-on-surface), 0.6) !important;
+}
+
 .border-sm {
-    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    border: 1px solid rgba(var(--v-border-color), 0.12) !important;
+}
+
+.shadow-sm {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
 }
 </style>

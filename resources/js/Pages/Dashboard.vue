@@ -1,32 +1,31 @@
 <template>
     <AuthenticatedLayout>
-        <v-container fluid class="pa-4 pa-md-8 bg-grey-lighten-4">
+        <v-container fluid class="pa-4 pa-md-8 bg-background">
             <v-card
                 variant="flat"
                 rounded="xl"
-                class="mb-8 pa-4 border-sm shadow-sm bg-white"
+                class="mb-8 pa-4 border-sm shadow-sm bg-surface"
             >
                 <v-row align="center">
                     <v-col cols="12" md="6">
                         <div class="d-flex align-center">
                             <v-avatar
-                                color="primary-lighten-5"
+                                color="primary"
+                                variant="tonal"
                                 size="48"
                                 class="me-4"
                                 rounded="lg"
                             >
-                                <v-icon color="primary" size="28"
+                                <v-icon size="28"
                                     >mdi-view-dashboard-outline</v-icon
                                 >
                             </v-avatar>
                             <div>
-                                <h1
-                                    class="text-h5 font-weight-black text-grey-darken-4"
-                                >
+                                <h1 class="text-h5 font-weight-black">
                                     InvenTrack Dashboard
                                 </h1>
                                 <p
-                                    class="text-caption text-grey-darken-1 font-weight-medium"
+                                    class="text-caption text-medium-emphasis font-weight-medium"
                                 >
                                     {{
                                         new Date().toLocaleDateString("id-ID", {
@@ -82,26 +81,27 @@
                     <v-card
                         elevation="0"
                         rounded="xl"
-                        class="pa-5 border-sm stat-card fill-height bg-white"
+                        class="pa-5 border-sm stat-card fill-height bg-surface"
                         :style="`border-left: 5px solid ${stat.realColor} !important`"
                     >
                         <div class="d-flex justify-space-between align-center">
                             <div>
                                 <div
-                                    class="text-overline text-grey-darken-1 font-weight-bold mb-1"
+                                    class="text-overline text-medium-emphasis font-weight-bold mb-1"
                                 >
                                     {{ stat.title }}
                                 </div>
-                                <div
-                                    class="text-h4 font-weight-black mb-1 text-grey-darken-4"
-                                >
+                                <div class="text-h4 font-weight-black mb-1">
                                     {{ stat.value }}
                                 </div>
                             </div>
-                            <v-avatar rounded="xl" size="56">
-                                <v-icon :color="stat.color" size="32">{{
-                                    stat.icon
-                                }}</v-icon>
+                            <v-avatar
+                                rounded="xl"
+                                size="56"
+                                :color="stat.color"
+                                variant="tonal"
+                            >
+                                <v-icon size="32">{{ stat.icon }}</v-icon>
                             </v-avatar>
                         </div>
                     </v-card>
@@ -113,7 +113,7 @@
                     <v-card
                         elevation="0"
                         rounded="xl"
-                        class="border-sm pa-6 fill-height bg-white"
+                        class="border-sm pa-6 fill-height bg-surface"
                     >
                         <div
                             class="d-flex justify-space-between align-center mb-8"
@@ -122,7 +122,7 @@
                                 <h3 class="text-h6 font-weight-black">
                                     Trend Masuk vs Keluar
                                 </h3>
-                                <p class="text-caption text-grey">
+                                <p class="text-caption text-medium-emphasis">
                                     Data harian pergerakan stok bengkel
                                 </p>
                             </div>
@@ -151,7 +151,7 @@
                     <v-card
                         elevation="0"
                         rounded="xl"
-                        class="border-sm pa-6 fill-height bg-white"
+                        class="border-sm pa-6 fill-height bg-surface"
                     >
                         <h3
                             class="text-h6 font-weight-black mb-6 d-flex align-center"
@@ -170,15 +170,13 @@
                                 <div
                                     v-bind="props"
                                     class="mb-6 px-2 pt-2 pb-1 rounded-lg transition-all"
-                                    :class="
-                                        isHovering ? 'bg-grey-lighten-4' : ''
-                                    "
+                                    :class="isHovering ? 'bg-background' : ''"
                                 >
                                     <div
                                         class="d-flex justify-space-between align-center mb-2"
                                     >
                                         <span
-                                            class="text-subtitle-2 font-weight-bold text-grey-darken-3"
+                                            class="text-subtitle-2 font-weight-bold"
                                             >{{ item.name }}</span
                                         >
                                         <v-chip
@@ -186,8 +184,9 @@
                                             color="primary"
                                             variant="flat"
                                             class="font-weight-black"
-                                            >{{ item.total }} Pcs</v-chip
                                         >
+                                            {{ item.total }} Pcs
+                                        </v-chip>
                                     </div>
                                     <v-progress-linear
                                         :model-value="
@@ -196,7 +195,6 @@
                                         color="primary"
                                         height="8"
                                         rounded
-                                        buffer-value="100"
                                     ></v-progress-linear>
                                 </div>
                             </v-hover>
@@ -210,9 +208,9 @@
                     <v-card
                         elevation="0"
                         rounded="xl"
-                        class="border-sm bg-white fill-height overflow-hidden"
+                        class="border-sm bg-surface fill-height overflow-hidden"
                     >
-                        <v-toolbar color="white" flat class="px-4 border-b-sm">
+                        <v-toolbar flat class="px-4 border-b">
                             <v-icon color="error" class="me-2"
                                 >mdi-alert-circle-outline</v-icon
                             >
@@ -231,15 +229,16 @@
                             ></v-btn>
                         </v-toolbar>
 
-                        <v-list lines="two" class="pa-0">
+                        <v-list lines="two" class="pa-0 bg-transparent">
                             <v-list-item
                                 v-for="item in stats.low_stock_list"
                                 :key="item.id"
-                                class="px-6 py-3 border-b-sm list-hover"
+                                class="px-6 py-3 border-b list-hover"
                             >
                                 <template v-slot:prepend>
                                     <v-avatar
-                                        color="red-lighten-5"
+                                        color="error"
+                                        variant="tonal"
                                         rounded="lg"
                                         size="48"
                                     >
@@ -254,7 +253,7 @@
                                     >{{ item.name }}</v-list-item-title
                                 >
                                 <v-list-item-subtitle
-                                    class="text-grey-darken-1 font-weight-medium"
+                                    class="text-medium-emphasis font-weight-medium"
                                 >
                                     Supplier:
                                     {{ item.supplier?.name || "Tentukan!" }}
@@ -270,19 +269,8 @@
                                         color="success"
                                         size="small"
                                         class="rounded-lg"
-                                        title="Order via WhatsApp"
                                         @click="sendWhatsApp(item)"
                                     ></v-btn>
-                                    <v-chip
-                                        v-else
-                                        color="warning"
-                                        size="x-small"
-                                        variant="tonal"
-                                        class="font-weight-bold"
-                                        prepend-icon="mdi-account-alert-outline"
-                                    >
-                                        Lapor Admin!
-                                    </v-chip>
                                 </template>
                             </v-list-item>
                         </v-list>
@@ -293,9 +281,9 @@
                     <v-card
                         elevation="0"
                         rounded="xl"
-                        class="border-sm bg-white fill-height"
+                        class="border-sm bg-surface fill-height"
                     >
-                        <v-toolbar color="white" flat class="px-4 border-b-sm">
+                        <v-toolbar flat class="px-4 border-b">
                             <v-icon color="indigo" class="me-2"
                                 >mdi-history</v-icon
                             >
@@ -309,8 +297,9 @@
                                 color="primary"
                                 class="font-weight-bold px-4"
                                 @click="router.visit('/history')"
-                                >Lihat Semua</v-btn
                             >
+                                Lihat Semua
+                            </v-btn>
                         </v-toolbar>
                         <v-table
                             density="comfortable"
@@ -319,22 +308,22 @@
                             <thead>
                                 <tr class="text-uppercase">
                                     <th
-                                        class="text-caption font-weight-black text-grey"
+                                        class="text-caption font-weight-black text-medium-emphasis"
                                     >
                                         Barang
                                     </th>
                                     <th
-                                        class="text-center text-caption font-weight-black text-grey"
+                                        class="text-center text-caption font-weight-black text-medium-emphasis"
                                     >
                                         Aksi
                                     </th>
                                     <th
-                                        class="text-center text-caption font-weight-black text-grey"
+                                        class="text-center text-caption font-weight-black text-medium-emphasis"
                                     >
                                         Qty
                                     </th>
                                     <th
-                                        class="text-right text-caption font-weight-black text-grey"
+                                        class="text-right text-caption font-weight-black text-medium-emphasis"
                                     >
                                         Waktu
                                     </th>
@@ -375,12 +364,12 @@
                                             "
                                             class="font-weight-black"
                                         >
-                                            {{ log.type === "in" ? "+" : "-" }}
-                                            {{ log.quantity }}
+                                            {{ log.type === "in" ? "+" : "-"
+                                            }}{{ log.quantity }}
                                         </span>
                                     </td>
                                     <td
-                                        class="text-right text-caption text-grey-darken-1"
+                                        class="text-right text-caption text-medium-emphasis"
                                     >
                                         {{
                                             new Date(
@@ -609,8 +598,9 @@ const applyFilter = () => {
 </script>
 
 <style scoped>
+/* GANTI: Warna border pake variabel opacity biar masuk ke tema dark & light */
 .border-sm {
-    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    border: 1px solid rgba(var(--v-border-color), 0.12) !important;
 }
 .shadow-sm {
     box-shadow: 0 2px 12px -4px rgba(0, 0, 0, 0.05) !important;
@@ -624,8 +614,9 @@ const applyFilter = () => {
     transform: translateY(-5px);
     box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.1) !important;
 }
+/* GANTI: list-hover pake background adaptif */
 .list-hover:hover {
-    background-color: #f8f9fa;
+    background-color: rgba(var(--v-theme-primary), 0.05);
     transition: background 0.2s;
 }
 .transition-all {
