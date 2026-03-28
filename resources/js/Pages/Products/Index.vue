@@ -80,17 +80,24 @@
                             size="45"
                             rounded="lg"
                             class="border my-1"
-                            variant="tonal"
-                            color="primary"
+                            :variant="item.image ? 'tonal' : 'flat'"
+                            :color="
+                                item.image
+                                    ? 'primary'
+                                    : getAvatarColor(item.name)
+                            "
                         >
                             <v-img
-                                :src="
-                                    item.image
-                                        ? '/storage/' + item.image
-                                        : '/images/no-image.png'
-                                "
+                                v-if="item.image"
+                                :src="'/storage/' + item.image"
                                 cover
                             ></v-img>
+                            <span
+                                v-else
+                                class="text-white font-weight-bold text-uppercase"
+                            >
+                                {{ item.name.charAt(0) }}
+                            </span>
                         </v-avatar>
                     </template>
 
@@ -497,7 +504,7 @@
 import { Html5QrcodeScanner } from "html5-qrcode";
 import { notify, confirmDelete } from "@/Utils/alert";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { useForm, router,Head } from "@inertiajs/vue3";
+import { useForm, router, Head } from "@inertiajs/vue3";
 import { ref, computed, onBeforeUnmount, nextTick } from "vue";
 
 const props = defineProps({
@@ -566,6 +573,20 @@ const formatCurrency = (val) =>
         currency: "IDR",
         minimumFractionDigits: 0,
     }).format(val);
+
+const getAvatarColor = (name) => {
+    const colors = [
+        "#1e88e5",
+        "#43a047",
+        "#fb8c00",
+        "#e53935",
+        "#8e24aa",
+        "#3949ab",
+        "#00acc1",
+    ];
+    const charCode = name ? name.charCodeAt(0) : 0;
+    return colors[charCode % colors.length];
+};
 
 const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -720,15 +741,7 @@ const closeScanner = () => {
 
 const exportToPdf = () => {
     const url = route("products.pdf");
-
-    const link = document.createElement("a");
-    link.href = url;
-
-    link.setAttribute("download", "Laporan-Stok.pdf");
-
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    window.open(url, "_blank");
 };
 
 onBeforeUnmount(() => {

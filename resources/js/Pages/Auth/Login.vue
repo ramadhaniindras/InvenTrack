@@ -42,10 +42,10 @@
                         >
                             <div class="text-center mb-8">
                                 <h2 class="text-h5 font-weight-bold">
-                                    Selamat Datang
+                                    Masukkan akun anda
                                 </h2>
                                 <p class="text-caption text-medium-emphasis">
-                                    Masukkan kredensial untuk akses gudang.
+                                    lengkapi data di bawah untuk akses penuh.
                                 </p>
                                 <v-divider
                                     class="mt-4 mx-auto border-opacity-100"
@@ -153,8 +153,8 @@
                             class="text-center mt-10 text-medium-emphasis text-caption"
                         >
                             &copy; 2026
-                            <strong>InvenTrack System</strong>.<br />
-                            Crafted for Efficiency.
+                            <strong>InvenTrack</strong>.<br />
+                            Manage with ease.
                         </p>
                     </v-col>
                 </v-row>

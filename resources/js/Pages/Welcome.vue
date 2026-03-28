@@ -82,13 +82,13 @@
                                         class="mb-6 px-4 font-weight-bold text-uppercase tracking-widest"
                                         size="small"
                                     >
-                                        Professional Inventory System
+                                        Inventory System
                                     </v-chip>
 
                                     <h1
                                         class="display-title font-weight-black mb-6 text-white leading-tight"
                                     >
-                                        Optimalisasi Aset & <br />
+                                        Optimalisasi Stok & <br />
                                         <span class="text-primary-light"
                                             >Akurasi Inventori.</span
                                         >
@@ -98,7 +98,7 @@
                                         class="text-h6 text-grey-lighten-3 mb-10 leading-relaxed font-weight-light max-width-700 mx-auto"
                                     >
                                         Pantau setiap pergerakan barang secara
-                                        presisi, real-time, dan efisien dengan
+                                        real-time, dan efisien dengan
                                         infrastruktur manajemen stok modern.
                                     </p>
 

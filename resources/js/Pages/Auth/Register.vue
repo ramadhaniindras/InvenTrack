@@ -31,7 +31,7 @@
                             <p
                                 class="text-body-2 text-medium-emphasis font-weight-medium"
                             >
-                                Buat Akun Administrator Baru
+                                Sistem Manajemen Inventori Modern
                             </p>
                         </div>
 
@@ -42,7 +42,7 @@
                         >
                             <div class="text-center mb-8">
                                 <h2 class="text-h5 font-weight-bold">
-                                    Daftar Sistem
+                                    Buat akun baru
                                 </h2>
                                 <p class="text-caption text-medium-emphasis">
                                     Lengkapi data di bawah untuk akses penuh.
@@ -151,8 +151,8 @@
                             class="text-center mt-10 text-medium-emphasis text-caption"
                         >
                             &copy; 2026
-                            <strong>InvenTrack System</strong>.<br />
-                            Gudang rapi, hati tenang.
+                            <strong>InvenTrack</strong>.<br />
+                            Manage with ease.
                         </p>
                     </v-col>
                 </v-row>
