@@ -1,4 +1,5 @@
 <template>
+    <Head title="Kategori" />
     <AuthenticatedLayout>
         <v-container fluid class="pa-4 pa-md-8 bg-background">
             <v-card
@@ -152,7 +153,7 @@
 <script setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { ref } from "vue";
-import { useForm, router } from "@inertiajs/vue3";
+import { useForm, router,Head } from "@inertiajs/vue3";
 import { notify, confirmDelete } from "@/Utils/alert";
 
 const props = defineProps({ categories: Array });

@@ -71,7 +71,7 @@ class UserController extends Controller implements HasMiddleware
     public function destroy(User $user)
     {
         if ($user->id === auth()->id()) {
-            return back()->with('error', 'Nggak boleh hapus akun sendiri bro! Lu kan masih login.');
+            return back()->with('error', 'Tidak boleh menghapus akun sendiri!');
         }
 
         $user->delete();

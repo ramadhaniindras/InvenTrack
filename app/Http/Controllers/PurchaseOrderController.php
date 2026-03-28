@@ -41,7 +41,7 @@ class PurchaseOrderController extends Controller implements HasMiddleware
 
         // Cek kalau ternyata gak ada barang yang perlu di-restock
         if ($items->isEmpty()) {
-            return back()->with('error', 'Gak ada barang yang kritis dari supplier ini, Bro!');
+            return back()->with('error', 'Gak ada barang yang kritis dari supplier ini');
         }
 
         // Data yang dikirim ke view PDF

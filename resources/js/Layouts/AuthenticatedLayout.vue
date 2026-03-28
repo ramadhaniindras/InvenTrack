@@ -179,8 +179,8 @@ const toggleTheme = () => {
 
 const logout = () => {
     Swal.fire({
-        title: "Mau keluar, Bro?",
-        text: "Pastikan kerjaan lu udah disimpan semua ya.",
+        title: "Yakin mau keluar",
+        text: "Pastikan kerjaan sudah disimpan semua.",
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#EF5350",

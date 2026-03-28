@@ -1,4 +1,5 @@
 <template>
+    <Head title="Laporan" />
     <AuthenticatedLayout>
         <v-container fluid class="pa-4 pa-md-8 bg-background min-vh-100">
             <h1
@@ -78,6 +79,7 @@
 <script setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { ref } from "vue";
+import { useForm, router,Head } from "@inertiajs/vue3";
 
 const reportTypes = ref([
     {
@@ -122,7 +124,7 @@ const getInputType = (type) => {
 
 const downloadPDF = (rep) => {
     if (!rep.value) {
-        alert("Pilih periode dulu, Bro!");
+        alert("Pilih periode dulu");
         return;
     }
     // Menggunakan window.open agar user tidak terlempar dari halaman

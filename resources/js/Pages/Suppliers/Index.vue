@@ -1,4 +1,5 @@
 <template>
+    <Head title="Suppliers" />
     <AuthenticatedLayout>
         <v-container fluid class="pa-4 pa-md-8 bg-background">
             <v-card
@@ -153,7 +154,7 @@
 
 <script setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { useForm, router } from "@inertiajs/vue3";
+import { useForm, router,Head } from "@inertiajs/vue3";
 import { ref } from "vue";
 import { notify, confirmDelete } from "@/Utils/alert";
 
@@ -218,7 +219,7 @@ const deleteItem = (id) => {
 
 const generateAndChat = (supplier) => {
     if (!supplier.phone) {
-        alert("Nomor WA supplier ini kosong, Bro! Isi dulu biar bisa gas.");
+        alert("Nomor WA supplier ini kosong.");
         return;
     }
 

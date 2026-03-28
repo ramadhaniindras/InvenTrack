@@ -1,4 +1,5 @@
 <template>
+    <Head title="Manajemen User" />
     <AuthenticatedLayout>
         <v-container fluid class="pa-4 pa-md-8 bg-background">
             <v-card
@@ -198,11 +199,12 @@
 
 <script setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { useForm, router, usePage } from "@inertiajs/vue3";
+import { useForm, router,Head } from "@inertiajs/vue3";
 import { ref } from "vue";
 import { notify, confirmDelete } from "@/Utils/alert";
 import Swal from "sweetalert2";
 import { useTheme } from "vuetify";
+
 
 const props = defineProps({ users: Array });
 const theme = useTheme();

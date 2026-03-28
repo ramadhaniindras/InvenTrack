@@ -39,7 +39,7 @@ const vuetify = createVuetify({
 import { usePage } from "@inertiajs/vue3";
 
 createInertiaApp({
-    title: (title) => `${title} InvenTrack`,
+    title: (title) => `${title} - InvenTrack`,
     resolve: (name) =>
         resolvePageComponent(
             `./Pages/${name}.vue`,

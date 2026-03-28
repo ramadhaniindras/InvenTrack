@@ -1,4 +1,5 @@
 <template>
+    <Head title="Selamat Datang" />
     <v-app>
         <v-app-bar
             flat

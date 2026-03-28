@@ -1,4 +1,5 @@
 <template>
+    <Head title="Data Produk" />
     <AuthenticatedLayout>
         <v-container fluid class="pa-4 pa-md-8 bg-background">
             <v-card
@@ -496,7 +497,7 @@
 import { Html5QrcodeScanner } from "html5-qrcode";
 import { notify, confirmDelete } from "@/Utils/alert";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { useForm, router } from "@inertiajs/vue3";
+import { useForm, router,Head } from "@inertiajs/vue3";
 import { ref, computed, onBeforeUnmount, nextTick } from "vue";
 
 const props = defineProps({

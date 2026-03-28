@@ -1,4 +1,5 @@
 <template>
+    <Head title="Riwayat Stok" />
     <AuthenticatedLayout>
         <v-container fluid class="pa-4 pa-md-8 bg-background">
             <v-row>
@@ -194,7 +195,7 @@
 
 <script setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { router } from "@inertiajs/vue3";
+import { useForm, router,Head } from "@inertiajs/vue3";
 import { ref, watch } from "vue";
 import debounce from "lodash/debounce";
 

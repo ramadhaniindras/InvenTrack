@@ -1,5 +1,6 @@
 <template>
     <AuthenticatedLayout>
+        <Head title="Dashboard" />
         <v-container fluid class="pa-4 pa-md-8 bg-background">
             <v-card
                 variant="flat"
@@ -392,7 +393,7 @@
 
 <script setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { router } from "@inertiajs/vue3";
+import { useForm, router,Head } from "@inertiajs/vue3";
 import { Line } from "vue-chartjs";
 import {
     Chart as ChartJS,
@@ -471,7 +472,7 @@ const sendWhatsApp = (item) => {
     const rawPhone = item.supplier?.phone || "";
     if (!rawPhone) {
         alert(
-            "Nomor HP Supplier belum ada, Bro! Isi dulu di data Master Supplier.",
+            "Nomor HP Supplier belum ada, Isi dulu di data Master Supplier.",
         );
         return;
     }
