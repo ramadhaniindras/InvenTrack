@@ -2,20 +2,17 @@
 nixPkgs = [
     "php82",
     "php82Packages.composer",
-    "php82Extensions.gd",
-    "php82Extensions.mbstring",
-    "php82Extensions.xml",
-    "php82Extensions.curl",
     "nodejs",
     "npm",
     "libpng",
     "libjpeg",
-    "freetype"
+    "freetype",
+    "pkg-config"
 ]
 
 [phases.build]
 cmds = [
-    "composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev",
+    "composer install --ignore-platform-reqs --no-interaction --no-scripts --prefer-dist --optimize-autoloader --no-dev",
     "npm install",
     "npm run build"
 ]
