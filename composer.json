@@ -88,9 +88,6 @@
             "php-http/discovery": true
         }
     },
-    "provide": {
-    "ext-gd": "*"
-},
     "minimum-stability": "stable",
     "prefer-stable": true
 }
