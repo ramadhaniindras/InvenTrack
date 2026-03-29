@@ -492,7 +492,7 @@ const sendWhatsApp = (item) => {
 
     const message =
         `Halo ${item.supplier.name}, saya mau order barang *${item.name}*.%0A%0A` +
-        `File PO saya lampirkan di bawah ini ya.%0A` +
+        `File purchase order (PO) saya lampirkan di bawah ini ya.%0A` +
         `Mohon segera dicek. Terima kasih!`;
 
     const waUrl = `https://wa.me/${phone}?text=${message}`;
