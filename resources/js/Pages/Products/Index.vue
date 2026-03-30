@@ -704,26 +704,37 @@ const openScanner = async () => {
     setTimeout(() => startScanning(), 400);
 };
 
+import { Html5Qrcode } from "html5-qrcode";
+
 const startScanning = () => {
-    if (html5QrcodeScanner) html5QrcodeScanner.clear();
+    const html5QrCode = new Html5Qrcode("reader");
+    const qrConfig = { fps: 10, qrbox: { width: 250, height: 250 } };
 
-    html5QrcodeScanner = new Html5QrcodeScanner("reader", {
-        fps: 10,
-        qrbox: { width: 250, height: 250 },
-        rememberLastUsedCamera: true,
-        supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
-    });
-
-    html5QrcodeScanner.render((decodedText) => {
-        const product = props.products.find((p) => p.sku === decodedText);
-        if (product) {
-            html5QrcodeScanner.clear();
-            scannedProduct.value = product;
-            notify("Barang ditemukan: " + product.name, "success");
-        } else {
-            notify("SKU " + decodedText + " tidak terdaftar!", "error");
-        }
-    });
+    // Langsung tembak kamera belakang (facingMode: environment)
+    html5QrCode
+        .start(
+            { facingMode: "environment" },
+            qrConfig,
+            (decodedText) => {
+                const product = props.products.find(
+                    (p) => p.sku === decodedText,
+                );
+                if (product) {
+                    html5QrCode.stop().then(() => {
+                        scannedProduct.value = product;
+                        notify("Barang ditemukan: " + product.name, "success");
+                    });
+                } else {
+                    notify("SKU " + decodedText + " tidak terdaftar!", "error");
+                }
+            },
+            (errorMessage) => {
+                // Ini untuk handle kalau gagal dapet frame (biarin kosong aja biar gak spam notify)
+            },
+        )
+        .catch((err) => {
+            notify("Gagal akses kamera: " + err, "error");
+        });
 };
 
 const actionFromScan = (type) => {
