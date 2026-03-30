@@ -2,12 +2,14 @@
 nixPkgs = ['php82', 'php82Packages.composer', 'nodejs_20', 'php82Packages.gd', 'php82Packages.pdo_mysql', 'php82Packages.mbstring']
 
 [phases.install]
-cmds = ['composer install --optimize-autoloader --no-scripts --no-interaction', 'npm install']
+# Tambahin --ignore-platform-reqs di sini biar dia nggak protes pas install
+cmds = ['composer install --optimize-autoloader --no-scripts --no-interaction --ignore-platform-reqs', 'npm install']
 
 [phases.build]
 cmds = ['npm run build']
 
 [variables]
+# Pastiin variabel ini ada buat aktifin GD pas aplikasi jalan
 NIXPACKS_PHP_EXTENSIONS = 'gd,pdo_mysql,mbstring,xml,openssl,tokenizer'
 NIXPACKS_NODE_VERSION = '20'
 
