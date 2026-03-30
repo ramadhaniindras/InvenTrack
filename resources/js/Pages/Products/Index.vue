@@ -501,14 +501,15 @@
 </template>
 
 <script setup>
-import { Html5QrcodeScanner } from "html5-qrcode";
+import { Html5Qrcode } from "html5-qrcode"; // Pake Html5Qrcode saja untuk kontrol manual
 import { notify, confirmDelete } from "@/Utils/alert";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { useForm, router, Head } from "@inertiajs/vue3";
-import { ref, computed, onBeforeUnmount, nextTick } from "vue";
-import { onUnmounted } from 'vue';
+import { ref, computed, onBeforeUnmount, nextTick, onUnmounted } from "vue";
 
+// --- VARIABEL GLOBAL SCANNER ---
 let html5QrCode = null;
+
 const props = defineProps({
     products: Array,
     categories: Array,
@@ -518,7 +519,6 @@ const props = defineProps({
 
 const scannerDialog = ref(false);
 const scannedProduct = ref(null);
-let html5QrcodeScanner = null;
 
 const dialog = ref(false);
 const stockDialog = ref(false);
@@ -639,7 +639,6 @@ const submit = () => {
     const action = isEditing.value
         ? route("products.update", form.id)
         : route("products.store");
-
     if (isEditing.value) {
         form.transform((data) => ({
             ...data,
@@ -699,15 +698,23 @@ const submitAdjust = () => {
 
 const printQrCode = (id) => window.open(route("products.qr", id), "_blank");
 
+const exportToPdf = () => {
+    const url = route("products.pdf");
+    window.open(url, "_blank");
+};
+
+// --- FUNGSI SCANNER (SUDAH DIPERBAIKI) ---
+
 const openScanner = async () => {
     scannerDialog.value = true;
     scannedProduct.value = null;
     await nextTick();
+    // Beri sedikit delay agar element #reader siap
     setTimeout(() => startScanning(), 400);
 };
 
 const startScanning = () => {
-    // Kalau sudah ada scanner yang jalan, stop dulu biar nggak double
+    // Stop jika ada instance lama yang gantung
     if (html5QrCode) {
         html5QrCode.stop().catch(() => {});
     }
@@ -715,34 +722,46 @@ const startScanning = () => {
     html5QrCode = new Html5Qrcode("reader");
     const qrConfig = { fps: 10, qrbox: { width: 250, height: 250 } };
 
-    html5QrCode.start(
-        { facingMode: "environment" },
-        qrConfig,
-        (decodedText) => {
-            const product = props.products.find((p) => p.sku === decodedText);
-            if (product) {
-                // Berhenti setelah nemu barang
-                stopCamera(); 
-                scannedProduct.value = product;
-                notify("Barang ditemukan: " + product.name, "success");
-            } else {
-                notify("SKU " + decodedText + " tidak terdaftar!", "error");
-            }
-        },
-        (errorMessage) => { /* biarkan kosong */ }
-    ).catch((err) => {
-        notify("Gagal akses kamera: " + err, "error");
-    });
+    html5QrCode
+        .start(
+            { facingMode: "environment" }, // Paksa kamera belakang
+            qrConfig,
+            (decodedText) => {
+                const product = props.products.find(
+                    (p) => p.sku === decodedText,
+                );
+                if (product) {
+                    // Berhenti setelah nemu barang agar flash mati
+                    stopCamera();
+                    scannedProduct.value = product;
+                    notify("Barang ditemukan: " + product.name, "success");
+                } else {
+                    notify("SKU " + decodedText + " tidak terdaftar!", "error");
+                }
+            },
+            (errorMessage) => {
+                /* Ignore spam logs */
+            },
+        )
+        .catch((err) => {
+            notify("Gagal akses kamera: " + err, "error");
+        });
 };
 
 const stopCamera = () => {
-    if (html5QrCode && html5QrCode.isScanning) {
-        html5QrCode.stop()
-            .then(() => {
-                html5QrCode.clear();
-                console.log("Kamera & Flash Mati");
-            })
-            .catch(err => console.error("Gagal stop kamera:", err));
+    if (html5QrCode) {
+        // Cek jika sedang scanning baru panggil stop
+        if (html5QrCode.isScanning) {
+            html5QrCode
+                .stop()
+                .then(() => {
+                    html5QrCode.clear();
+                    console.log("Kamera & Flash Berhasil Mati");
+                })
+                .catch((err) => console.error("Gagal stop kamera:", err));
+        } else {
+            html5QrCode.clear();
+        }
     }
 };
 
@@ -750,40 +769,25 @@ const actionFromScan = (type) => {
     const product = scannedProduct.value;
     scannerDialog.value = false;
     scannedProduct.value = null;
+    stopCamera(); // Pastikan mati saat lanjut ke dialog stok
     openStockDialog(product, type);
 };
 
 const closeScanner = () => {
-    stopCamera(); // Panggil fungsi stop yang benar
-    showScannerModal.value = false; 
-    scannerDialog.value = false; // Pastikan semua dialog tertutup
+    stopCamera();
+    scannerDialog.value = false;
+    scannedProduct.value = null;
 };
 
-// 4. Lifecycle Hook (Pembersihan saat pindah halaman)
+// --- LIFECYCLE HOOKS ---
 onBeforeUnmount(() => {
     stopCamera();
 });
 
-const exportToPdf = () => {
-    const url = route("products.pdf");
-    window.open(url, "_blank");
-};
-
-onBeforeUnmount(() => {
-    if (html5QrcodeScanner) html5QrcodeScanner.clear();
-});
-
 onUnmounted(() => {
-    if (html5QrcodeScanner) {
-        html5QrcodeScanner.clear().then(() => {
-            console.log("Kamera & Flash Berhasil Mati");
-        }).catch(err => {
-            console.error("Gagal matiin kamera:", err);
-        });
-    }
+    stopCamera();
 });
 </script>
-
 <style scoped>
 /* GANTI: Warna header tabel agar adaptif menggunakan text-medium-emphasis */
 .v-data-table :deep(thead th) {
