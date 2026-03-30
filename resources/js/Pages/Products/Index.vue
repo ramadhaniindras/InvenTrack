@@ -506,6 +506,7 @@ import { notify, confirmDelete } from "@/Utils/alert";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { useForm, router, Head } from "@inertiajs/vue3";
 import { ref, computed, onBeforeUnmount, nextTick } from "vue";
+import { onUnmounted } from 'vue';
 
 const props = defineProps({
     products: Array,
@@ -758,6 +759,16 @@ const exportToPdf = () => {
 
 onBeforeUnmount(() => {
     if (html5QrcodeScanner) html5QrcodeScanner.clear();
+});
+
+onUnmounted(() => {
+    if (html5QrcodeScanner) {
+        html5QrcodeScanner.clear().then(() => {
+            console.log("Kamera & Flash Berhasil Mati");
+        }).catch(err => {
+            console.error("Gagal matiin kamera:", err);
+        });
+    }
 });
 </script>
 
