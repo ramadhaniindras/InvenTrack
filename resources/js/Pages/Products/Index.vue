@@ -706,46 +706,58 @@ const exportToPdf = () => {
 // --- FUNGSI SCANNER (SUDAH DIPERBAIKI) ---
 
 const openScanner = async () => {
+    // 1. Matikan dulu yang lama kalau masih 'nyangkut'
+    if (html5QrCode) {
+        try {
+            await html5QrCode.stop();
+            html5QrCode.clear();
+        } catch (e) {
+            // ignore error kalau emang udah mati
+        }
+    }
+
     scannerDialog.value = true;
     scannedProduct.value = null;
+
     await nextTick();
-    // Beri sedikit delay agar element #reader siap
-    setTimeout(() => startScanning(), 400);
+    // 2. Kasih delay sedikit lebih lama (500ms) biar element #reader bener-bener siap di DOM
+    setTimeout(() => {
+        startScanning();
+    }, 500);
 };
 
 const startScanning = () => {
-    // Stop jika ada instance lama yang gantung
-    if (html5QrCode) {
-        html5QrCode.stop().catch(() => {});
-    }
+    // Cek lagi, jangan sampai double instance
+    const element = document.getElementById("reader");
+    if (!element) return;
 
     html5QrCode = new Html5Qrcode("reader");
-    const qrConfig = { fps: 10, qrbox: { width: 250, height: 250 } };
+    const qrConfig = {
+        fps: 10,
+        qrbox: { width: 250, height: 250 },
+        aspectRatio: 1.0
+    };
 
-    html5QrCode
-        .start(
-            { facingMode: "environment" }, // Paksa kamera belakang
-            qrConfig,
-            (decodedText) => {
-                const product = props.products.find(
-                    (p) => p.sku === decodedText,
-                );
-                if (product) {
-                    // Berhenti setelah nemu barang agar flash mati
-                    stopCamera();
-                    scannedProduct.value = product;
-                    notify("Barang ditemukan: " + product.name, "success");
-                } else {
-                    notify("SKU " + decodedText + " tidak terdaftar!", "error");
-                }
-            },
-            (errorMessage) => {
-                /* Ignore spam logs */
-            },
-        )
-        .catch((err) => {
-            notify("Gagal akses kamera: " + err, "error");
-        });
+    html5QrCode.start(
+        { facingMode: "environment" },
+        qrConfig,
+        (decodedText) => {
+            const product = props.products.find((p) => p.sku === decodedText);
+            if (product) {
+                // Berhenti setelah nemu barang
+                stopCamera();
+                scannedProduct.value = product;
+                notify("Barang ditemukan: " + product.name, "success");
+            } else {
+                notify("SKU " + decodedText + " tidak terdaftar!", "error");
+            }
+        },
+        (errorMessage) => { /* Ignore */ }
+    ).catch((err) => {
+        console.error("Gagal start scanner:", err);
+        // Kalau gagal, coba bersihkan instance
+        stopCamera();
+    });
 };
 
 const stopCamera = () => {
