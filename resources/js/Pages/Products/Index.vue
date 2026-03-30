@@ -746,10 +746,10 @@ const actionFromScan = (type) => {
 };
 
 const closeScanner = () => {
-    if (html5QrcodeScanner)
-        html5QrcodeScanner.clear().catch((e) => console.error(e));
-    scannerDialog.value = false;
-    scannedProduct.value = null;
+    if (html5QrcodeScanner) {
+        html5QrcodeScanner.clear(); 
+    }
+    showScannerModal.value = false; 
 };
 
 const exportToPdf = () => {
