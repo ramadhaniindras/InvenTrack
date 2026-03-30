@@ -8,10 +8,13 @@ return new class extends Migration {
     /**
      * Run the migrations.
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('suppliers', function (Blueprint $table) {
-            $table->string('phone')->nullable()->after('name');
+            // Cek dulu, kalau kolom 'phone' BELUM ada, baru tambahin
+            if (!Schema::hasColumn('suppliers', 'phone')) {
+                $table->string('phone')->nullable()->after('name');
+            }
         });
     }
 
