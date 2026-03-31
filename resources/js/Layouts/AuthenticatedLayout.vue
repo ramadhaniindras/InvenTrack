@@ -67,7 +67,14 @@
                         :active="route().current('suppliers.*')"
                         rounded="lg"
                     ></v-list-item>
-
+                    <v-list-item
+                        v-if="$page.props.auth.user.role === 'admin'"
+                        prepend-icon="mdi-file-document-outline"
+                        title="Purchase Order"
+                        @click="router.visit(route('purchase-orders.create'))"
+                        :active="route().current('purchase-orders.*')"
+                        rounded="lg"
+                    ></v-list-item>
                     <v-list-item
                         prepend-icon="mdi-file-chart-outline"
                         title="Laporan"
@@ -168,6 +175,7 @@ const pageTitle = computed(() => {
     if (route().current("reports.*")) return "Business Reports";
     if (route().current("users.*")) return "User Management";
     if (route().current("suppliers.*")) return "Supplier List";
+    if (route().current("purchase-orders.*")) return "Purchase Order Manual";
     return "InvenTrack System";
 });
 
