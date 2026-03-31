@@ -80,23 +80,34 @@
                             size="45"
                             rounded="lg"
                             class="border my-1"
-                            :variant="item.image ? 'tonal' : 'flat'"
-                            :color="
-                                item.image
-                                    ? 'primary'
-                                    : getAvatarColor(item.name)
-                            "
+                            :variant="item.image ? 'flat' : 'tonal'"
+                            :color="item.image ? '' : getAvatarColor(item.name)"
                         >
                             <v-img
                                 v-if="item.image"
-                                :src="'/storage/' + item.image"
+                                :src="`/storage/produk/${item.image}`"
                                 cover
-                            ></v-img>
+                            >
+                                <template v-slot:placeholder>
+                                    <v-row
+                                        class="fill-height ma-0"
+                                        align="center"
+                                        justify="center"
+                                    >
+                                        <v-progress-circular
+                                            indeterminate
+                                            size="20"
+                                            color="primary"
+                                        ></v-progress-circular>
+                                    </v-row>
+                                </template>
+                            </v-img>
+
                             <span
                                 v-else
                                 class="text-white font-weight-bold text-uppercase"
                             >
-                                {{ item.name.charAt(0) }}
+                                {{ item.name ? item.name.charAt(0) : "?" }}
                             </span>
                         </v-avatar>
                     </template>
@@ -228,7 +239,7 @@
                                         :src="
                                             imagePreview ||
                                             (isEditing && form.old_image
-                                                ? '/storage/' + form.old_image
+                                                ? `/storage/produk/${form.old_image}`
                                                 : '/images/no-image.png')
                                         "
                                         cover
@@ -461,8 +472,7 @@
                                     <v-img
                                         :src="
                                             scannedProduct.image
-                                                ? '/storage/' +
-                                                  scannedProduct.image
+                                                ? `/storage/produk/${scannedProduct.image}`
                                                 : '/images/no-image.png'
                                         "
                                         cover
@@ -735,29 +745,35 @@ const startScanning = () => {
     const qrConfig = {
         fps: 10,
         qrbox: { width: 250, height: 250 },
-        aspectRatio: 1.0
+        aspectRatio: 1.0,
     };
 
-    html5QrCode.start(
-        { facingMode: "environment" },
-        qrConfig,
-        (decodedText) => {
-            const product = props.products.find((p) => p.sku === decodedText);
-            if (product) {
-                // Berhenti setelah nemu barang
-                stopCamera();
-                scannedProduct.value = product;
-                notify("Barang ditemukan: " + product.name, "success");
-            } else {
-                notify("SKU " + decodedText + " tidak terdaftar!", "error");
-            }
-        },
-        (errorMessage) => { /* Ignore */ }
-    ).catch((err) => {
-        console.error("Gagal start scanner:", err);
-        // Kalau gagal, coba bersihkan instance
-        stopCamera();
-    });
+    html5QrCode
+        .start(
+            { facingMode: "environment" },
+            qrConfig,
+            (decodedText) => {
+                const product = props.products.find(
+                    (p) => p.sku === decodedText,
+                );
+                if (product) {
+                    // Berhenti setelah nemu barang
+                    stopCamera();
+                    scannedProduct.value = product;
+                    notify("Barang ditemukan: " + product.name, "success");
+                } else {
+                    notify("SKU " + decodedText + " tidak terdaftar!", "error");
+                }
+            },
+            (errorMessage) => {
+                /* Ignore */
+            },
+        )
+        .catch((err) => {
+            console.error("Gagal start scanner:", err);
+            // Kalau gagal, coba bersihkan instance
+            stopCamera();
+        });
 };
 
 const stopCamera = () => {
