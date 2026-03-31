@@ -87,6 +87,11 @@
                                 v-if="item.image"
                                 :src="`/storage/products/${item.image}`"
                                 cover
+                                @error="
+                                    (e) => {
+                                        item.image = null;
+                                    }
+                                "
                             >
                                 <template v-slot:placeholder>
                                     <v-row
