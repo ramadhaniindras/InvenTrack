@@ -85,13 +85,9 @@
                         >
                             <v-img
                                 v-if="item.image"
-                                :src="`/storage/products/${item.image}`"
+                                :src="'/storage/' + item.image"
                                 cover
-                                @error="
-                                    (e) => {
-                                        item.image = null;
-                                    }
-                                "
+                                @error="item.image = null"
                             >
                                 <template v-slot:placeholder>
                                     <v-row
@@ -244,10 +240,9 @@
                                         :src="
                                             imagePreview ||
                                             (isEditing && form.old_image
-                                                ? `/storage/products/${form.old_image}`
+                                                ? '/storage/' + form.old_image
                                                 : '/images/no-image.png')
                                         "
-                                        cover
                                     ></v-img>
                                 </v-avatar>
                                 <v-file-input
@@ -477,10 +472,10 @@
                                     <v-img
                                         :src="
                                             scannedProduct.image
-                                                ? `/storage/products/${scannedProduct.image}`
+                                                ? '/storage/' +
+                                                  scannedProduct.image
                                                 : '/images/no-image.png'
                                         "
-                                        cover
                                     ></v-img>
                                 </v-avatar>
                                 <h3 class="text-h6 font-weight-bold">
