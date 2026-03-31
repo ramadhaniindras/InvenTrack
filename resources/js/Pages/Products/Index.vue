@@ -85,7 +85,7 @@
                         >
                             <v-img
                                 v-if="item.image"
-                                :src="`/storage/produk/${item.image}`"
+                                :src="`/storage/products/${item.image}`"
                                 cover
                             >
                                 <template v-slot:placeholder>
@@ -239,7 +239,7 @@
                                         :src="
                                             imagePreview ||
                                             (isEditing && form.old_image
-                                                ? `/storage/produk/${form.old_image}`
+                                                ? `/storage/products/${form.old_image}`
                                                 : '/images/no-image.png')
                                         "
                                         cover
@@ -472,7 +472,7 @@
                                     <v-img
                                         :src="
                                             scannedProduct.image
-                                                ? `/storage/produk/${scannedProduct.image}`
+                                                ? `/storage/products/${scannedProduct.image}`
                                                 : '/images/no-image.png'
                                         "
                                         cover
