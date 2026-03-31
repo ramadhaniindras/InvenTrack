@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\PurchaseOrder;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controllers\HasMiddleware; 
-use Illuminate\Routing\Controllers\Middleware;    
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Str;
 
@@ -59,5 +60,34 @@ class PurchaseOrderController extends Controller implements HasMiddleware
         $fileName = 'PO_' . str_replace(' ', '_', $supplier->name) . '_' . date('Ymd') . '.pdf';
 
         return $pdf->download($fileName);
+    }
+    public function store(Request $request)
+    {
+        // 1. Validasi Input
+        $validated = $request->validate([
+            'supplier_id' => 'required|exists:suppliers,id',
+            'items' => 'required|array|min:1',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.quantity' => 'required|integer|min:1',
+        ]);
+
+        // 2. Simpan Header PO
+        $po = PurchaseOrder::create([
+            'po_number' => 'PO-' . now()->format('YmdHis'),
+            'supplier_id' => $request->supplier_id,
+            'order_date' => now(),
+            'status' => 'draft',
+        ]);
+
+        // 3. Simpan Detail Barang (Looping)
+        foreach ($request->items as $item) {
+            $po->items()->create([
+                'product_id' => $item['product_id'],
+                'quantity' => $item['quantity'],
+                'unit_price' => $item['unit_price'] ?? 0, // Opsional kalau mau nyatet harga beli
+            ]);
+        }
+
+        return redirect()->route('purchase-orders.index')->with('success', 'PO Berhasil dibuat!');
     }
 }

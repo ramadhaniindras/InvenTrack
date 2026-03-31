@@ -1,5 +1,6 @@
 <?php
 
+
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
@@ -63,6 +64,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Purchase Orders
     Route::get('/purchase-order/{supplier}', [PurchaseOrderController::class, 'generate'])->name('po.generate');
     Route::get('/po/download/{product}', [DashboardController::class, 'downloadPO'])->name('po.download');
+    Route::get('/purchase-orders/create', function () {
+        return inertia('PurchaseOrders/Create', [
+            'suppliers' => \App\Models\Supplier::all(),
+            'products' => \App\Models\Product::all(),
+        ]);
+    })->name('purchase-orders.create');
+
+    Route::post('/purchase-orders', [PurchaseOrderController::class, 'store'])->name('purchase-orders.store');
 });
 
 require __DIR__ . '/auth.php';
