@@ -1,7 +1,7 @@
 <?php
 
-
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ManualPurchaseOrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\StockMovementController;
@@ -64,14 +64,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Purchase Orders
     Route::get('/purchase-order/{supplier}', [PurchaseOrderController::class, 'generate'])->name('po.generate');
     Route::get('/po/download/{product}', [DashboardController::class, 'downloadPO'])->name('po.download');
-    Route::get('/purchase-orders/create', function () {
-        return inertia('PurchaseOrders/Create', [
-            'suppliers' => \App\Models\Supplier::all(),
-            'products' => \App\Models\Product::all(),
-        ]);
-    })->name('purchase-orders.create');
 
-    Route::post('/purchase-orders', [PurchaseOrderController::class, 'store'])->name('purchase-orders.store');
+    // Route Khusus PO Manual
+Route::get('/manual-po/create', [ManualPurchaseOrderController::class, 'create'])->name('manual-po.create');
+Route::post('/manual-po/store', [ManualPurchaseOrderController::class, 'store'])->name('manual-po.store');
+Route::get('/manual-po/{po}/download', [ManualPurchaseOrderController::class, 'download'])->name('manual-po.download');
+Route::get('/manual-po/download-latest', [ManualPurchaseOrderController::class, 'downloadLatest'])->name('manual-po.download-latest');
 });
 
 require __DIR__ . '/auth.php';

@@ -67,14 +67,15 @@
                         :active="route().current('suppliers.*')"
                         rounded="lg"
                     ></v-list-item>
+
                     <v-list-item
-                        v-if="$page.props.auth.user.role === 'admin'"
-                        prepend-icon="mdi-file-document-outline"
-                        title="Purchase Order"
-                        @click="router.visit(route('purchase-orders.create'))"
-                        :active="route().current('purchase-orders.*')"
+                        prepend-icon="mdi-file-plus-outline"
+                        title="PO Manual"
+                        @click="router.visit(route('manual-po.create'))"
+                        :active="route().current('manual-po.*')"
                         rounded="lg"
                     ></v-list-item>
+
                     <v-list-item
                         prepend-icon="mdi-file-chart-outline"
                         title="Laporan"
@@ -114,11 +115,9 @@
 
         <v-app-bar flat border-b>
             <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
-
             <v-toolbar-title class="text-body-1 font-weight-bold">
                 {{ pageTitle }}
             </v-toolbar-title>
-
             <v-spacer></v-spacer>
 
             <v-btn
@@ -160,12 +159,13 @@
 
 <script setup>
 import { useTheme } from "vuetify";
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue"; // Tambah watch
 import { router, usePage } from "@inertiajs/vue3";
 import Swal from "sweetalert2";
 
 const drawer = ref(true);
 const theme = useTheme();
+const page = usePage();
 
 const pageTitle = computed(() => {
     if (route().current("dashboard")) return "Dashboard Overview";
@@ -175,9 +175,19 @@ const pageTitle = computed(() => {
     if (route().current("reports.*")) return "Business Reports";
     if (route().current("users.*")) return "User Management";
     if (route().current("suppliers.*")) return "Supplier List";
-    if (route().current("purchase-orders.*")) return "Purchase Order Manual";
+    if (route().current("manual-po.*")) return "Purchase Order Manual"; // Update Title
     return "InvenTrack System";
 });
+
+// LOGIKA OTOMATIS DOWNLOAD PDF PO MANUAL
+watch(
+    () => page.props.flash.download_po_id,
+    (newId) => {
+        if (newId) {
+            window.open(route("manual-po.download", newId), "_blank");
+        }
+    },
+);
 
 const toggleTheme = () => {
     theme.global.name.value = theme.global.current.value.dark
@@ -187,7 +197,7 @@ const toggleTheme = () => {
 
 const logout = () => {
     Swal.fire({
-        title: "Yakin mau keluar",
+        title: "Yakin mau keluar?",
         text: "Pastikan kerjaan sudah disimpan semua.",
         icon: "warning",
         showCancelButton: true,

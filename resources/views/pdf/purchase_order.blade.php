@@ -37,7 +37,7 @@
             </td>
             <td align="right">
                 <strong>Pemesan:</strong><br>
-                Bengkel InvenTrack<br>
+                InvenTrack<br>
                 Admin: {{ auth()->user()->name }}
             </td>
         </tr>
