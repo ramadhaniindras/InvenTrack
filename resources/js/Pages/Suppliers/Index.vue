@@ -121,7 +121,6 @@
                         v-model="form.phone"
                         label="Nomor WhatsApp"
                         variant="outlined"
-                        placeholder="62812xxx atau 0812xxx"
                         hint="Format: 628xxx (Otomatis ke WA)"
                         persistent-hint
                         class="mb-4"

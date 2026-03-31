@@ -120,7 +120,6 @@
                             label="Nama Kategori"
                             variant="outlined"
                             density="comfortable"
-                            placeholder="Contoh: Oli, Ban, Sparepart"
                             :error-messages="form.errors.name"
                             @keyup.enter="submit"
                         ></v-text-field>
